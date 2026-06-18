@@ -144,7 +144,7 @@ Circuito de adaptación: divisor de voltaje con resistencias de 1 kΩ y 2 kΩ, o
 
 ## Nombre del kit en Bluetooth
 
-Cada unidad del kit aparece en Bluetooth con el nombre **Sensei-XXXX**, donde XXXX son los últimos 4 caracteres de la dirección MAC de la ESP32. La MAC es única por chip, así que el nombre queda único por unidad sin configuración manual. Ejemplo: `Sensei-A1B2`, `Sensei-3C4D`.
+Cada unidad del kit aparece en Bluetooth con el nombre **SENSEI-XXXX**, donde XXXX son los últimos 4 caracteres de la dirección MAC de la ESP32. La MAC es única por chip, así que el nombre queda único por unidad sin configuración manual. Ejemplo: `SENSEI-A1B2`, `SENSEI-3C4D`.
 
 ---
 
