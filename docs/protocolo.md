@@ -38,9 +38,12 @@ UUID: `4fafc201-1fb5-459e-8fcc-c5c9c331914b`
 ### Detalle de cada característica
 
 **WIFI_CRED** — La app escribe el SSID y la contraseña juntos, separados por `\n`:
+
 ```
 MiRedWiFi\nMiClave123
-```**WIFI_STAT** — El ESP32 notifica el progreso al conectarse. Valores exactos (respetar mayúsculas):
+```
+
+**WIFI_STAT** — El ESP32 notifica el progreso al conectarse. Valores exactos (respetar mayúsculas):
 | Valor | Significado |
 |---|---|
 | `CONNECTING` | El ESP32 está intentando conectarse |

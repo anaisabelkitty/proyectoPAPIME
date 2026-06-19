@@ -152,14 +152,16 @@ Cada unidad del kit aparece en Bluetooth con el nombre **SENSEI-XXXX**, donde XX
 
 Como el kit se usa en distintos lugares, las credenciales WiFi no se dejan fijas en el código. El usuario las configura desde la app Android o desde la página web cada vez que cambia de red.
 
-### Flujo (igual para la página web y la app Android)
+### Flujo de configuración WiFi
 
-1. El usuario abre la app o la página web.
+1. El usuario abre la app.
 2. Se conecta a la ESP32 por BLE.
 3. Le envía a la ESP32 el nombre (SSID) y la contraseña de la red WiFi.
-4. La ESP32 guarda las credenciales, se desconecta del BLE y se conecta al WiFi.
-5. Una vez en el WiFi, levanta el servidor HTTP.
-6. La app o la página web consultan el endpoint `/datos` y reciben los datos en JSON.
+4. La ESP32 se conecta al WiFi — **sin guardar las credenciales** y **sin apagar el BLE**.
+5. Una vez en el WiFi, levanta el servidor WebSocket.
+6. Otros usuarios pueden conectarse por BLE para obtener la IP y ver los datos.
+
+El flujo completo con todos los estados y pantallas está documentado en [`docs/protocolo.md`](protocolo.md).
 
 ### Opciones de implementación BLE en la ESP32
 
