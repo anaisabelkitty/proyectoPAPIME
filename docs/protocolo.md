@@ -81,16 +81,25 @@ MiRedWiFi\nMiClave123
 5. La app escribe `"SSID\nPASSWORD"` en `WIFI_CRED`.
 6. El ESP32 notifica `CONNECTING` → `CONNECTED` en `WIFI_STAT`.
 7. El ESP32 notifica su IP en `IP_ADDR` y el nombre de la red en `WIFI_SSID`.
-8. La app se conecta al WebSocket con esa IP.
+8. La app muestra una advertencia antes de continuar:
+   > *"Para ver los datos, tu celular debe estar conectado a la red WiFi: **[WIFI_SSID]**"*
+   >
+   > [ Continuar ]
+9. El usuario confirma y presiona **Continuar**.
+10. La app se conecta al WebSocket con la IP recibida.
+11. Si la conexión falla, la app vuelve a mostrar la advertencia del paso 8.
 
 ### Usuarios adicionales (el kit ya está configurado)
 
 1. Abre la app → escanea BLE → selecciona `SENSEI-XXXX`.
 2. La app lee `WIFI_STATE` → valor `CONNECTED`.
-3. La app lee `IP_ADDR` y `WIFI_SSID` directamente.
-4. La app intenta conectarse al WebSocket.
-5. Si falla (el celular está en otra red), la app muestra: *"Conéctate a la red: [WIFI_SSID]"*.
-6. Si tiene éxito, muestra los datos directamente.
+3. La app lee `WIFI_SSID` y muestra inmediatamente una advertencia antes de continuar:
+   > *"Para ver los datos, tu celular debe estar conectado a la red WiFi: **[WIFI_SSID]**"*
+   >
+   > [ Continuar ]
+4. El usuario confirma que está en esa red y presiona **Continuar**.
+5. La app lee `IP_ADDR` y se conecta al WebSocket.
+6. Si la conexión falla (el celular no estaba en la red correcta), la app vuelve a mostrar la advertencia del paso 3.
 
 ---
 
@@ -172,7 +181,73 @@ Sin autenticación. El WebSocket y el servidor HTTP responden sin credenciales. 
 
 ---
 
-## 8. Pendientes
+## 8. Gestión de credenciales WiFi
+
+### Comportamiento al encender
+
+El ESP32 guarda **una sola** credencial (SSID + contraseña) en su memoria interna. Al encenderse:
+
+1. Si tiene credenciales guardadas → intenta conectarse automáticamente.
+   - Si la conexión es exitosa en menos de **10 segundos** → queda en `CONNECTED`.
+   - Si no se conecta en 10 segundos → borra las credenciales y queda en `UNCONFIGURED`.
+2. Si no tiene credenciales → queda en `UNCONFIGURED` y espera configuración por BLE.
+
+### Reglas de la memoria
+
+- Solo se guarda **un par** SSID/contraseña a la vez.
+- Cada vez que llegan credenciales nuevas por BLE, sobreescriben las anteriores.
+- Nunca se acumulan credenciales. No requiere mantenimiento.
+
+### Reconfiguración desde la app
+
+Cuando el usuario se conecta por BLE y `WIFI_STATE` es `CONNECTED`, la app muestra el botón **"Cambiar red WiFi"**. Al presionarlo:
+
+1. La app escribe `"RESET"` en la característica `WIFI_CRED`.
+2. El ESP32 borra sus credenciales y cambia su estado a `UNCONFIGURED`.
+3. La app muestra automáticamente la pantalla de configuración WiFi.
+
+Esto permite cambiar de red sin necesidad de reiniciar el kit ni usar ningún botón físico.
+
+### Pantallas de la app relacionadas con WiFi
+
+**Pantalla: Conectando** — aparece después de enviar credenciales, mientras el ESP32 notifica `CONNECTING`:
+```
+┌─────────────────────────────┐
+│  Conectando a MiRedWiFi...  │
+│                             │
+│        ⏳ 8 segundos        │
+│                             │
+│  [ Cancelar ]               │
+└─────────────────────────────┘
+```
+Muestra un contador regresivo mientras se espera. Si el ESP32 notifica `FAILED` o pasan 10 segundos sin respuesta, va a la pantalla de error.
+
+**Pantalla: Error de conexión** — aparece cuando el ESP32 notifica `FAILED`:
+```
+┌─────────────────────────────┐
+│  ✗ No se pudo conectar      │
+│                             │
+│  Verifica que el nombre y   │
+│  contraseña sean correctos. │
+│                             │
+│  [ Intentar de nuevo ]      │
+└─────────────────────────────┘
+```
+
+**Pantalla: Cambiar red** — aparece en ajustes cuando `WIFI_STATE` es `CONNECTED`:
+```
+┌─────────────────────────────┐
+│  Kit conectado a:           │
+│  📶 MiRedWiFi               │
+│                             │
+│  [ Cambiar red WiFi ]       │
+└─────────────────────────────┘
+```
+Al presionar "Cambiar red WiFi", la app manda `"RESET"` por BLE y va directo a la pantalla de configuración.
+
+---
+
+## 9. Pendientes
 
 | Tema | Descripción |
 |---|---|

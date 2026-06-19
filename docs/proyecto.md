@@ -74,7 +74,7 @@ El cable se poncha en los dos extremos siguiendo el estándar **T568B** (cable d
 | 7 | Blanco-Café |
 | 8 | Café |
 
-La asignación de qué pin va a VCC, GND, ID, señal analógica y señal digital está **pendiente de definir**. Una vez definida, todos los módulos sensores se fabrican con esa misma asignación.
+La asignación de qué pin va a VCC, GND, ID, señal analógica y señal digital está **pendiente de confirmar con el equipo de hardware**. Propuesta inicial documentada en `docs/protocolo.md`.
 
 **Longitud máxima del cable:** para uso en aula, 1 metro es suficiente y seguro para señales analógicas. Cables más largos aumentan el ruido en la señal.
 
@@ -161,11 +161,11 @@ Como el kit se usa en distintos lugares, las credenciales WiFi no se dejan fijas
 5. Una vez en el WiFi, levanta el servidor HTTP.
 6. La app o la página web consultan el endpoint `/datos` y reciben los datos en JSON.
 
-### Opciones de implementación BLE en la ESP32 (pendiente de decidir)
+### Opciones de implementación BLE en la ESP32
 
-- **Opción A — NimBLE (recomendada):** librería BLE más ligera y eficiente en memoria.
-- **Opción B — ESP32 BLE Arduino:** librería estándar, más documentación pero consume más RAM.
-- **Opción C — ESP-IDF directo:** API nativa de Espressif, máximo control pero más compleja.
+**Decisión: NimBLE-Arduino.**
+
+Es la librería más ligera (~50 KB de RAM), estable con reconexiones frecuentes y compatible con PlatformIO. Con WiFi + BLE + WebSocket activos al mismo tiempo, NimBLE deja suficiente margen de RAM. La alternativa ESP32 BLE Arduino consume ~120 KB y tiene bugs conocidos con reconexiones.
 
 ### Sobre la página web
 
@@ -178,36 +178,27 @@ Usa la **Web Bluetooth API** para conectarse a la ESP32 por BLE. Solo funciona e
 
 ---
 
-## Servidor web en la ESP32
+## Servidor web y WebSocket en la ESP32
 
-- Endpoint: `GET /datos`
-- Responde con JSON con los valores de los sensores conectados en ese momento.
-- Solo aparecen los sensores enchufados; los conectores vacíos no aparecen.
+El protocolo completo de comunicación ESP32 ↔ App Android está documentado en [`docs/protocolo.md`](protocolo.md). Esa es la referencia definitiva para implementar.
 
-### Estructura del JSON (propuesta — pendiente de confirmar con el desarrollador Android)
+En resumen:
+- Los datos de sensores se transmiten por **WebSocket** (`ws://<ip>/ws`, puerto 80) cada 500ms.
+- El Mega empaqueta los datos en JSON y los manda al ESP32 por UART. El ESP32 los reenvía por WebSocket sin modificarlos.
+- El formato JSON usa claves cortas: `"s"` (array de puertos), `"p"` (puerto), `"c"` (conectado), `"id"` (sensor), `"v"` (valor), `"u"` (unidad).
 
-```json
-{
-  "sensei": "Sensei-A1B2",
-  "sensores": [
-    { "puerto": 1, "nombre": "pH", "valor": 7.20, "unidad": "pH" },
-    { "puerto": 3, "nombre": "Temperatura", "valor": 24.50, "unidad": "°C" }
-  ]
-}
-```
-
-### Decimales por sensor (propuesta inicial — se ajusta al implementar cada uno)
+### Decimales por sensor (se confirman al implementar cada uno)
 
 | Sensor | Decimales | Razón |
 |--------|-----------|-------|
 | Voltaje AR2657 | 2 | Resolución ~24 mV |
 | Corriente ACS712 | 2 | Resolución ~74 mA |
 | pH PH-4502C | 2 | Resolución ~0.03 pH |
-| Fototransistor PT331C | 0 | Se reporta como valor ADC (0–1023) |
+| Fototransistor PT331C | — | Pendiente (ver protocolo.md sección 9) |
 | Humedad OKY3442 | 1 | Porcentaje aproximado |
 | CO2 MG811 | 0 | Se reporta en ppm enteros |
 | Pulso OKY3471-5 | 0 | BPM son siempre enteros |
-| Efecto Hall SM351LT | — | Digital: "detectado" / "no detectado" |
+| Efecto Hall SM351LT | — | Pendiente (ver protocolo.md sección 9) |
 | Temperatura DS18B20 | 2 | Precisión ±0.5 °C |
 
 ### Flujo completo de datos
@@ -219,13 +210,11 @@ Arduino Mega 2560
 (lee sensores, detecta cuáles están conectados, muestra en LCD, empaqueta JSON)
       ↓  UART 115200 baud
 ESP32 NodeMCU
-(recibe JSON, levanta servidor HTTP)
-      ↓  HTTP / WiFi local
-      ├──→ Página web (Chrome o Edge) — pruebas y tesis
-      └──→ App Android — producto final
+(recibe JSON, lo reenvía por WebSocket, gestiona BLE y WiFi)
+      ↓  WebSocket / WiFi local
+      ├──→ App Android — producto final
+      └──→ Página web (Chrome o Edge) — pruebas y tesis
 ```
-
-La página web y la app Android no funcionan al mismo tiempo.
 
 ---
 
@@ -300,15 +289,14 @@ PAPIME/
 
 ## Pendiente de decidir
 
-1. **Asignación de pines del cable UTP** — qué pin va a VCC, GND, ID, señal analógica y señal digital.
+1. **Asignación de pines del cable UTP** — propuesta inicial en `docs/protocolo.md`, pendiente de confirmar con el equipo de hardware.
 2. **Voltajes de identificación de los 16 sensores** — se define al diseñar el circuito de cada sensor.
-3. **Confirmar estructura del JSON** con el desarrollador Android (ver `docs/android.md`).
-4. **Sensores 10–16** — todavía no están definidos.
-5. **Perfil BLE** (UUIDs GATT) — coordinar con el desarrollador Android (ver `docs/android.md`).
-6. **Opción de alimentación dual** — diodo OR o switch con MOSFET.
-7. **Página web** — quedarse con Chrome/Edge o publicar como PWA.
-8. **Confirmar Opción A** para pines por conector (pin analógico + pin digital por cada RJ45).
-9. **Decimales por sensor** — se confirman al implementar cada sensor.
+3. **Sensores 10–16** — todavía no están definidos.
+4. **Opción de alimentación dual** — diodo OR o switch con MOSFET.
+5. **Página web** — quedarse con Chrome/Edge o publicar como PWA.
+6. **Confirmar Opción A** para pines por conector (pin analógico + pin digital por cada RJ45).
+7. **Decimales por sensor** — se confirman al implementar cada sensor.
+8. **Sensor Hall y Fototransistor en JSON** — cómo representar valores no numéricos en el campo `"v"` (ver `docs/protocolo.md` sección 9).
 
 ---
 
