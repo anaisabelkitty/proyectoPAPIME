@@ -40,9 +40,7 @@ UUID: `4fafc201-1fb5-459e-8fcc-c5c9c331914b`
 **WIFI_CRED** — La app escribe el SSID y la contraseña juntos, separados por `\n`:
 ```
 MiRedWiFi\nMiClave123
-```
-
-**WIFI_STAT** — El ESP32 notifica el progreso al conectarse. Valores exactos (respetar mayúsculas):
+```**WIFI_STAT** — El ESP32 notifica el progreso al conectarse. Valores exactos (respetar mayúsculas):
 | Valor | Significado |
 |---|---|
 | `CONNECTING` | El ESP32 está intentando conectarse |
@@ -185,65 +183,19 @@ Sin autenticación. El WebSocket y el servidor HTTP responden sin credenciales. 
 
 ### Comportamiento al encender
 
-El ESP32 guarda **una sola** credencial (SSID + contraseña) en su memoria interna. Al encenderse:
+El ESP32 **no guarda credenciales** entre sesiones. Cada vez que se apaga, las credenciales se borran. Al encenderse siempre arranca en estado `UNCONFIGURED` y espera que alguien le configure el WiFi por BLE.
 
-1. Si tiene credenciales guardadas → intenta conectarse automáticamente.
-   - Si la conexión es exitosa en menos de **10 segundos** → queda en `CONNECTED`.
-   - Si no se conecta en 10 segundos → borra las credenciales y queda en `UNCONFIGURED`.
-2. Si no tiene credenciales → queda en `UNCONFIGURED` y espera configuración por BLE.
+Esto garantiza que:
+- Ningún alumno puede arruinar la configuración entre clases.
+- El kit siempre arranca en un estado predecible.
+- No se necesita botón de reset ni lógica de reconfiguración.
 
-### Reglas de la memoria
+### Flujo al inicio de cada clase
 
-- Solo se guarda **un par** SSID/contraseña a la vez.
-- Cada vez que llegan credenciales nuevas por BLE, sobreescriben las anteriores.
-- Nunca se acumulan credenciales. No requiere mantenimiento.
-
-### Reconfiguración desde la app
-
-Cuando el usuario se conecta por BLE y `WIFI_STATE` es `CONNECTED`, la app muestra el botón **"Cambiar red WiFi"**. Al presionarlo:
-
-1. La app escribe `"RESET"` en la característica `WIFI_CRED`.
-2. El ESP32 borra sus credenciales y cambia su estado a `UNCONFIGURED`.
-3. La app muestra automáticamente la pantalla de configuración WiFi.
-
-Esto permite cambiar de red sin necesidad de reiniciar el kit ni usar ningún botón físico.
-
-### Pantallas de la app relacionadas con WiFi
-
-**Pantalla: Conectando** — aparece después de enviar credenciales, mientras el ESP32 notifica `CONNECTING`:
-```
-┌─────────────────────────────┐
-│  Conectando a MiRedWiFi...  │
-│                             │
-│        ⏳ 8 segundos        │
-│                             │
-│  [ Cancelar ]               │
-└─────────────────────────────┘
-```
-Muestra un contador regresivo mientras se espera. Si el ESP32 notifica `FAILED` o pasan 10 segundos sin respuesta, va a la pantalla de error.
-
-**Pantalla: Error de conexión** — aparece cuando el ESP32 notifica `FAILED`:
-```
-┌─────────────────────────────┐
-│  ✗ No se pudo conectar      │
-│                             │
-│  Verifica que el nombre y   │
-│  contraseña sean correctos. │
-│                             │
-│  [ Intentar de nuevo ]      │
-└─────────────────────────────┘
-```
-
-**Pantalla: Cambiar red** — aparece en ajustes cuando `WIFI_STATE` es `CONNECTED`:
-```
-┌─────────────────────────────┐
-│  Kit conectado a:           │
-│  📶 MiRedWiFi               │
-│                             │
-│  [ Cambiar red WiFi ]       │
-└─────────────────────────────┘
-```
-Al presionar "Cambiar red WiFi", la app manda `"RESET"` por BLE y va directo a la pantalla de configuración.
+1. El profesor enciende el kit — arranca en `UNCONFIGURED`.
+2. El profesor abre la app, se conecta por BLE y configura el WiFi.
+3. El kit se conecta a la red y queda listo.
+4. Los alumnos se conectan por BLE para obtener la IP y ver los datos.
 
 ---
 
