@@ -21,7 +21,7 @@
 //    VCC del módulo  →  5V del Arduino Mega
 //    GND del módulo  →  GND del Arduino Mega
 //    Po  del módulo  →  A2 del Arduino Mega
-//    Electrodo E201  →  conector BNC del módulo
+//    Electrodo E201C-BNC  →  conector BNC del módulo
 // ─────────────────────────────────────────────────────────────
 
 #include <Arduino.h>
