@@ -2,11 +2,20 @@
 //  CALIBRACIÓN CON SOLUCIONES BUFFER — Sensor pH PH-4502C
 //  Arduino Mega 2560 | PlatformIO
 //
+//  Siempre calibra con DOS puntos (Lagrange grado 1).
+//  El usuario elige qué par de buffers usar según lo que va a medir:
+//
+//    A → pH 4.01 + pH 7.00   Muestras ácidas a neutras
+//                            (suelo, cultivos, agua, hidroponía)
+//
+//    B → pH 7.00 + pH 10.01  Muestras neutras a alcalinas
+//                            (agua tratada, soluciones básicas)
+//
 //  USO:
-//    1. Sube este archivo como src/main.cpp (renombra el original)
-//    2. Abre el Serial Monitor a 9600 baudios
-//    3. Sigue las instrucciones en pantalla
-//    4. Al terminar, copia los valores a src/sensores_analogicos/ph/ph.h
+//    1. Copia este archivo como src/main.cpp (guarda el original)
+//    2. Sube al Arduino y abre el Serial Monitor a 9600 baudios
+//    3. Escribe A o B y sigue las instrucciones
+//    4. Copia los dos valores resultantes a ph.h
 //
 //  CONEXIONES:
 //    VCC del módulo  →  5V del Arduino Mega
@@ -21,138 +30,185 @@
 const int   PIN_SENSOR = A2;
 const float VREF       = 5.0;
 const float ADC_MAX    = 1024.0;
-const int   MUESTRAS   = 30;      // Promedio de 30 lecturas para estabilidad
+const int   MUESTRAS   = 30;   // Promedio de 30 lecturas para estabilidad
 
-// --- pH conocidos de las soluciones buffer ---
-const float PH_BUFFER_1 = 7.00;  // Primera solución (neutra)
-const float PH_BUFFER_2 = 4.01;  // Segunda solución (ácida)
+// --- Valores de pH de las soluciones buffer ---
+const float PH_4  =  4.01;
+const float PH_7  =  7.00;
+const float PH_10 = 10.01;
 
-// --- Variables de calibración ---
-float voltaje_buffer1 = 0.0;
-float voltaje_buffer2 = 0.0;
+// --- Estado interno ---
+int modo = 0;   // 0=esperando elección  1=pH4+pH7  2=pH7+pH10
 
-// Lee el voltaje promediando N muestras
+// ─────────────────────────────────────────────────────────────
+//  Utilidades
+// ─────────────────────────────────────────────────────────────
+
+// Lee el voltaje promediando MUESTRAS lecturas con 20 ms entre cada una
 float leerVoltajePromedio() {
     long suma = 0;
     for (int i = 0; i < MUESTRAS; i++) {
         suma += analogRead(PIN_SENSOR);
         delay(20);
     }
-    float promedio = (float)suma / MUESTRAS;
-    return promedio * VREF / ADC_MAX;
+    return ((float)suma / MUESTRAS) * VREF / ADC_MAX;
 }
 
-// Espera a que el usuario envíe cualquier carácter por serial
-void esperarEnter() {
-    while (Serial.available() == 0) {
-        delay(100);
+// Espera cualquier carácter por Serial, devuelve en minúscula y vacía el buffer
+char esperarCaracter() {
+    while (Serial.available() == 0) delay(100);
+    char c = (char)Serial.read();
+    delay(10);
+    while (Serial.available() > 0) Serial.read();
+    return tolower(c);
+}
+
+// Muestra instrucciones, espera confirmación y devuelve el voltaje medido
+float pedirMedicion(float ph_buffer, int paso, int total) {
+    Serial.println();
+    Serial.print("--- PASO ");
+    Serial.print(paso);
+    Serial.print(" de ");
+    Serial.print(total);
+    Serial.print(" --- Buffer pH ");
+    Serial.println(ph_buffer, 2);
+
+    if (paso > 1) {
+        Serial.println("    Enjuaga bien la sonda con agua destilada.");
     }
-    // Vaciar el buffer
-    while (Serial.available() > 0) {
-        Serial.read();
-    }
+    Serial.print("    Sumerge la sonda en la solucion pH ");
+    Serial.print(ph_buffer, 2);
+    Serial.println(".");
+    Serial.println("    Espera 2 minutos hasta que se estabilice.");
+    Serial.println("    Luego presiona ENTER (o cualquier tecla).");
+
+    esperarCaracter();
+
+    Serial.print("    Leyendo");
+    for (int i = 0; i < 3; i++) { delay(300); Serial.print("."); }
+    float v = leerVoltajePromedio();
+    Serial.print("  Voltaje: ");
+    Serial.print(v, 4);
+    Serial.println(" V  OK");
+    return v;
 }
 
-void setup() {
-    Serial.begin(9600);
-    pinMode(PIN_SENSOR, INPUT);
+// ─────────────────────────────────────────────────────────────
+//  Cálculo de Lagrange grado 1 e impresión de resultados
+//
+//  Dos puntos: (v_a, ph_a) y (v_b, ph_b)
+//  Polinomio:  pH = ph_a*(v-v_b)/(v_a-v_b) + ph_b*(v-v_a)/(v_b-v_a)
+//
+//  Convertido a la forma que usa ph.h:
+//    pH = 7 + (PH_OFFSET_PH7 - voltaje) / PH_SENSIBILIDAD
+//  donde:
+//    PH_OFFSET_PH7   = voltaje medido cuando pH = 7 (= v_7)
+//    PH_SENSIBILIDAD = (v_b - v_a) / (ph_a - ph_b)  [positivo]
+// ─────────────────────────────────────────────────────────────
+void calcularEImprimir(float v_a, float ph_a,
+                       float v_b, float ph_b,
+                       float v_7) {
+    // Sensibilidad: cuántos voltios cambia por cada unidad de pH
+    // La relación es inversa (más pH → menos voltaje), por eso
+    // se usa (ph_a - ph_b) en el denominador para que quede positivo
+    float sensibilidad = (v_b - v_a) / (ph_a - ph_b);
 
-    delay(500);
+    // Offset: es simplemente el voltaje que midió cuando pH = 7
+    float offset = v_7;
 
-    Serial.println("=========================================");
-    Serial.println("  CALIBRACION CON SOLUCIONES BUFFER");
-    Serial.println("  Sensor pH PH-4502C");
-    Serial.println("=========================================");
-    Serial.println();
-    Serial.println("Este proceso calculara los valores reales");
-    Serial.println("de OFFSET y SENSIBILIDAD para tu modulo.");
-    Serial.println();
-    Serial.println("Necesitas:");
-    Serial.println("  - Solucion buffer pH 7.00");
-    Serial.println("  - Solucion buffer pH 4.01");
-    Serial.println("  - La sonda limpia y seca entre mediciones");
-    Serial.println();
-    Serial.println("-----------------------------------------");
-    Serial.println("PASO 1: Sumerge la sonda en buffer pH 7");
-    Serial.println("Espera 2 minutos y luego envia cualquier");
-    Serial.println("caracter por el Serial Monitor.");
-    Serial.println("-----------------------------------------");
-}
+    // Verificar que el polinomio pasa exactamente por los dos puntos
+    float ph_calc_a = 7.0 + (offset - v_a) / sensibilidad;
+    float ph_calc_b = 7.0 + (offset - v_b) / sensibilidad;
 
-void loop() {
-    // --- PASO 1: Medir buffer pH 7 ---
-    Serial.println("\nEsperando... (envia cualquier caracter cuando este listo)");
-    esperarEnter();
-
-    Serial.println("Leyendo voltaje en buffer pH 7.00...");
-    voltaje_buffer1 = leerVoltajePromedio();
-
-    Serial.print("  Voltaje medido: ");
-    Serial.print(voltaje_buffer1, 4);
-    Serial.println(" V");
-    Serial.print("  pH esperado:    ");
-    Serial.println(PH_BUFFER_1);
-
-    // --- PASO 2: Medir buffer pH 4 ---
-    Serial.println();
-    Serial.println("-----------------------------------------");
-    Serial.println("PASO 2: Enjuaga la sonda con agua destilada");
-    Serial.println("luego sumergela en buffer pH 4.01");
-    Serial.println("Espera 2 minutos y luego envia cualquier");
-    Serial.println("caracter por el Serial Monitor.");
-    Serial.println("-----------------------------------------");
-    Serial.println("\nEsperando... (envia cualquier caracter cuando este listo)");
-    esperarEnter();
-
-    Serial.println("Leyendo voltaje en buffer pH 4.01...");
-    voltaje_buffer2 = leerVoltajePromedio();
-
-    Serial.print("  Voltaje medido: ");
-    Serial.print(voltaje_buffer2, 4);
-    Serial.println(" V");
-    Serial.print("  pH esperado:    ");
-    Serial.println(PH_BUFFER_2);
-
-    // --- CÁLCULO DE LAGRANGE ---
-    // Puntos: (voltaje_buffer1, PH_BUFFER_1) y (voltaje_buffer2, PH_BUFFER_2)
-    // Sensibilidad real = (pH2 - pH1) / (voltaje2 - voltaje1)
-    // Como la relación es inversa: sensibilidad = (pH1 - pH2) / (voltaje2 - voltaje1)
-    float delta_voltaje = voltaje_buffer2 - voltaje_buffer1;
-    float delta_ph      = PH_BUFFER_1 - PH_BUFFER_2;  // 7 - 4 = 3
-    float sensibilidad_real = delta_ph / delta_voltaje; // negativo porque relacion inversa
-
-    // Offset real: voltaje donde el pH es 7
-    // De la formula pH = 7 + (offset - Vout) / sensibilidad
-    // offset = voltaje_buffer1 (el voltaje medido cuando pH = 7)
-    float offset_real = voltaje_buffer1;
-
-    // --- RESULTADOS ---
     Serial.println();
     Serial.println("=========================================");
     Serial.println("  RESULTADOS DE CALIBRACION");
     Serial.println("=========================================");
     Serial.println();
-    Serial.println("Copia estos valores en ph.h:");
+    Serial.println("  Copia estos valores en ph.h:");
     Serial.println();
-    Serial.print("  const float PH_OFFSET_PH7   = ");
-    Serial.print(offset_real, 4);
+    Serial.print("    const float PH_OFFSET_PH7   = ");
+    Serial.print(offset, 4);
     Serial.println(";");
-    Serial.print("  const float PH_SENSIBILIDAD = ");
-    // La sensibilidad debe ser positiva en la formula
-    // pH = 7 + (offset - Vout) / sensibilidad
-    // sensibilidad = delta_voltaje / delta_ph * (-1)
-    float sens_formula = (voltaje_buffer2 - voltaje_buffer1) / (PH_BUFFER_1 - PH_BUFFER_2);
-    Serial.print(sens_formula, 4);
+    Serial.print("    const float PH_SENSIBILIDAD = ");
+    Serial.print(sensibilidad, 4);
     Serial.println(";");
+    Serial.println();
+    Serial.println("  Verificacion (deben coincidir con los buffers):");
+    Serial.print("    Buffer pH ");
+    Serial.print(ph_a, 2);
+    Serial.print("  →  calcula pH: ");
+    Serial.println(ph_calc_a, 2);
+    Serial.print("    Buffer pH ");
+    Serial.print(ph_b, 2);
+    Serial.print("  →  calcula pH: ");
+    Serial.println(ph_calc_b, 2);
+}
 
+// ─────────────────────────────────────────────────────────────
+//  Setup: menú de selección
+// ─────────────────────────────────────────────────────────────
+void setup() {
+    Serial.begin(9600);
+    pinMode(PIN_SENSOR, INPUT);
+    delay(500);
+
+    Serial.println("=========================================");
+    Serial.println("  CALIBRACION — Sensor pH PH-4502C");
+    Serial.println("=========================================");
     Serial.println();
-    Serial.println("Verificacion con los puntos medidos:");
-    float ph_verificacion1 = 7.0 + (offset_real - voltaje_buffer1) / sens_formula;
-    float ph_verificacion2 = 7.0 + (offset_real - voltaje_buffer2) / sens_formula;
-    Serial.print("  Buffer pH 7 → calcula: ");
-    Serial.println(ph_verificacion1, 2);
-    Serial.print("  Buffer pH 4 → calcula: ");
-    Serial.println(ph_verificacion2, 2);
+    Serial.println("Elige los buffers segun lo que vas a medir:");
+    Serial.println();
+    Serial.println("  A → pH 4.01 + pH 7.00");
+    Serial.println("      Para muestras acidas a neutras");
+    Serial.println("      (suelo, cultivos, agua, hidroponia)");
+    Serial.println();
+    Serial.println("  B → pH 7.00 + pH 10.01");
+    Serial.println("      Para muestras neutras a alcalinas");
+    Serial.println("      (agua tratada, soluciones basicas)");
+    Serial.println();
+    Serial.println("Escribe A o B y presiona ENTER:");
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Loop: ejecuta la calibración según el modo elegido
+// ─────────────────────────────────────────────────────────────
+void loop() {
+    if (modo != 0) return;   // Ya terminó, no repetir
+
+    if (Serial.available() == 0) return;
+
+    char opcion = esperarCaracter();
+
+    if (opcion == 'a') {
+        modo = 1;
+        Serial.println();
+        Serial.println(">>> Modo A: pH 4.01 + pH 7.00");
+
+    } else if (opcion == 'b') {
+        modo = 2;
+        Serial.println();
+        Serial.println(">>> Modo B: pH 7.00 + pH 10.01");
+
+    } else {
+        Serial.println("Opcion no valida. Escribe A o B:");
+        return;
+    }
+
+    // ── PASO 1: siempre pH 7 primero (es el offset central) ──
+    float v7 = pedirMedicion(PH_7, 1, 2);
+
+    // ── PASO 2: el segundo buffer según el modo ───────────────
+    float v2, ph2;
+    if (modo == 1) {
+        v2  = pedirMedicion(PH_4, 2, 2);
+        ph2 = PH_4;
+        calcularEImprimir(v7, PH_7, v2, ph2, v7);
+    } else {
+        v2  = pedirMedicion(PH_10, 2, 2);
+        ph2 = PH_10;
+        calcularEImprimir(v7, PH_7, v2, ph2, v7);
+    }
 
     Serial.println();
     Serial.println("=========================================");
@@ -160,8 +216,6 @@ void loop() {
     Serial.println("  Reinicia el Arduino para repetir.");
     Serial.println("=========================================");
 
-    // No repetir — esperar reinicio
-    while (true) {
-        delay(10000);
-    }
+    // Detener hasta que el usuario reinicie
+    while (true) delay(10000);
 }

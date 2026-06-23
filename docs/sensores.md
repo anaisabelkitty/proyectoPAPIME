@@ -816,7 +816,9 @@ El módulo sensor de pH líquido PH-4502C (SKU AR0288, UNIT Electronics) mide el
 
 El módulo está compuesto por dos partes: un **electrodo** (sonda E201-BNC) que se sumerge en el líquido y genera una señal eléctrica proporcional al pH, y una **tarjeta** (PH-4502C) que ajusta esa señal al rango de 0 a 5 V para que el Arduino pueda leerla. El electrodo se conecta a la tarjeta a través de un conector BNC.
 
-El módulo **necesita alimentación de 5 V** para funcionar. Además cuenta con dos potenciómetros: uno de **offset** (el más cercano al conector BNC) que sirve para calibrar la lectura, y otro que controla una salida digital (Do) que se activa cuando el pH alcanza un límite configurado.
+El módulo **necesita alimentación de 5 V** para funcionar. Además cuenta con dos potenciómetros: uno de **offset** (etiquetado como POT 1 en algunos tutoriales, pero verificado físicamente como el potenciómetro **más cercano al conector BNC** en nuestra unidad — denominado **POT 2** en el pinout de UNIT Electronics) que sirve para calibrar la lectura analógica en el pin Po; y otro que controla una salida digital (Do) que se activa cuando el pH alcanza un límite configurado.
+
+> **Nota de calibración (verificada en el módulo físico del proyecto):** El potenciómetro que afecta la lectura del pin Po es el **más cercano al conector BNC**. En la imagen de pinout de UNIT Electronics ese potenciómetro aparece marcado como **POT 2** ("límite de medición PH"), pero en la práctica es el que cambia el voltaje analógico de salida. La numeración en los tutoriales es inconsistente entre fabricantes; lo que importa es identificar el pot por posición física: **el más cercano al BNC es el de offset**.
 
 **Referencia:**
 - UNIT Electronics. (s.f.). *PH-4502C Sensor de PH Líquido con electrodo E201C-BNC*. https://uelectronics.com/producto/sensor-de-ph-liquido/
@@ -891,7 +893,7 @@ El módulo tiene un **conector BNC** en un lado (donde se conecta el electrodo) 
 
 Antes de usar el sensor, se debe calibrar. El proceso tiene dos pasos:
 
-Primero, se ajusta el potenciómetro de offset (el que está más cerca del conector BNC) hasta que la lectura de voltaje en el pin Po sea **2.5 V** cuando el electrodo no está midiendo ningún líquido. Esto se verifica con un multímetro o leyendo el voltaje desde el Arduino.
+Primero, se ajusta el potenciómetro de offset — el que está **más cerca del conector BNC** (verificado físicamente en nuestra unidad: es el que cambia el voltaje en el pin Po al girarlo) — hasta que la lectura de voltaje en el pin Po sea **2.5 V** cuando el BNC está cortocircuitado (se conecta el centro del BNC con la carcasa exterior con un trozo de cable). Esto se verifica con un multímetro o leyendo el voltaje desde el Arduino. La posición del potenciómetro de offset corresponde al marcado como **POT 2** en el pinout de UNIT Electronics, aunque algunos tutoriales lo llaman POT 1. Identificarlo por posición física es más confiable que por número.
 
 Después, se sumerge el electrodo en al menos dos soluciones con pH conocido (por ejemplo una solución de pH 4.01 y otra de pH 7.00). Se anotan los voltajes que entrega el módulo para cada solución, y con esos dos puntos se calcula la sensibilidad real del módulo. Esos dos puntos son los que se usan en la interpolación de Lagrange.
 

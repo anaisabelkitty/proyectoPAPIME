@@ -1,6 +1,6 @@
-// Programa de medición normal del pH — Sensor PH-4502C
-// Calibración completada: PH_OFFSET_PH7 = 2.5018, PH_SENSIBILIDAD = 0.1771
-// Para recalibrar: copiar extras/ph/calibracion_buffer.cpp como src/main.cpp
+// BACKUP de src/main.cpp — programa de medición normal del pH
+// Restaurar cuando termine la calibración de offset (Paso 2)
+// Renombrar este archivo a src/main.cpp y eliminar el sketch de calibración
 
 #include <Arduino.h>
 #include "sensores_analogicos/ph/ph.h"
