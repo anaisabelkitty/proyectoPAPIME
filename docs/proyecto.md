@@ -121,7 +121,7 @@ Documentación técnica completa de cada sensor: [`docs/sensores.md`](sensores.m
 | # | Sensor | Pin Mega |
 |---|--------|----------|
 | 8 | Sensor de Efecto Hall SM351LT | Digital 22 |
-| 9 | Sensor de Temperatura DS18B20 (sumergible) | Digital 7 |
+| 9 | Sensor de Temperatura DS18B20 (sumergible) | Digital 7 | ✅ |
 
 Los sensores 10–16 no están definidos todavía.
 
@@ -238,7 +238,7 @@ PAPIME/
 │   │   └── pulso_cardiaco/                 ⬜ pendiente
 │   └── sensores_digitales/
 │       ├── hall/                           ⬜ pendiente
-│       └── temperatura_ds18b20/            ⬜ pendiente
+│       └── temperatura_ds18b20/            ✅ implementado
 ├── esp32/                                  ← código de la ESP32
 │   └── main.cpp                            ⬜ pendiente
 ├── docs/                                   ← documentación del proyecto
@@ -246,9 +246,11 @@ PAPIME/
 │   ├── sensores.md                         ← documentación técnica de cada sensor
 │   └── android.md                          ← coordinación con desarrollador Android
 └── extras/
-    └── ph/                                 ← archivos de calibración del sensor pH
-        ├── calibracion_bnc.cpp
-        └── calibracion_buffer.cpp
+    ├── ph/                                 ← archivos de calibración del sensor pH
+    │   ├── calibracion_bnc.cpp
+    │   └── calibracion_buffer.cpp
+    └── temperatura_ds18b20/                ← verificación/calibración del DS18B20
+        └── calibracion_ds18b20.cpp
 ```
 
 ### Convenciones de código
@@ -275,7 +277,7 @@ PAPIME/
 | Sensor de CO2 MG811 | ⬜ Pendiente |
 | Sensor de Pulso OKY3471-5 | ⬜ Pendiente |
 | Sensor Hall SM351LT | ⬜ Pendiente |
-| Sensor Temperatura DS18B20 | ⬜ Pendiente |
+| Sensor Temperatura DS18B20 | ✅ Implementado |
 | Sensores 10–16 | ❓ No definidos |
 | Display LCD 20×4 con I2C | ⬜ Pendiente |
 | Conexión Mega ↔ ESP32 (UART) | ⬜ Pendiente |
