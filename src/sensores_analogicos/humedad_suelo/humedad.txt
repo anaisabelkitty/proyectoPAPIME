@@ -1,0 +1,67 @@
+OKY3442
+Descripción
+ElOKY3442esun sensordehumedaddelsueloque aldetectarescasezdeagua,
+tendrá una salida con un nivel alto lógico, en caso contrario, la salida del sensor
+será de nivel bajo, es ideal para monitorear y gestionar la humedad del suelo. La
+sensibilidaddelsensorsepuedeajustargirandoelpotenciómetro.
+Puede utilizarse para crear un sistema de riego automático, de esa manera usted
+podríagestionarelestadodetodaslasplantasdesujardín.
+Especificaciones técnicas
+Voltajedeentrada 3.3-5VDC
+Voltajedesalidamáx 4.2VDC
+Corrientedetrabajo 20mA
+Salida Digitalyanalógica
+Orificiodeposicionamientodetornilloparasufácilinstalación
+Chip LM393
+Dimensionesdelmódulo 3.2cmx1.4cm
+Dimensionesdelasonda 6cmx2cm
+Longituddelcable 21cm
+MÓDULO CON SENSOR DE
+HUMEDAD DEL SUELO
+
+
+Definición de pines
+ VCC:Voltajedealimentación
+ GND:Tierra
+ A0:Salidaanalógicaqueentregaunatensiónproporcionalalahumedad
+ D0:Salidadigital; estemódulopermiteajustarcuándoelnivellógico deesta
+salidapasadebajoaaltomedianteelpotenciómetro
+Contenido
+1XSonda
+1XModuloLM393
+2XJumperhembra-hembra20cm
+
+
+Conexión a la tarjeta Arduino y código
+Realizarlasconexionesdelsiguientediagrama:
+El siguiente código lee el valor del sensor de humedad, lo convierte en un
+porcentajede0a100yenvíaestevaloralMonitorSeriecada100milisegundos.
+#define sensor A0
+int valor = 0;
+void setup()
+{
+Serial.begin(9600);
+}
+void loop()
+{
+int valor = map(analogRead(sensor), 0, 1023, 100, 0);
+Serial.print("Humedad: ");
+Serial.print(valor);
+Serial.println("%");
+delay(100);
+}
+
+Enlace externo: funcionamiento y aplicación
+Acortes.co.(2021,23mayo).ProyectoArduino-Sensordehumedaddesuelo
+[Vídeo].YouTube.https://www.youtube.com/watch?v=eulIW2tjsfE
+AG Electrónica SAPI de CV
+República de El Salvador 20 Piso 2,
+Centro Histórico, Centro, 06000
+Ciudad de México, CDMX
+Teléfono: 55 5130 7210
+Realizó
+Revisó
+Fecha
+Joel Martinez Vazquez
+Ing. Luz Fernanda Domínguez Gómez
+18/07/2024

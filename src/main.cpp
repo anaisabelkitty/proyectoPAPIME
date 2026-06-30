@@ -1,15 +1,17 @@
 // Kit Sensei — Menú principal
 //
 // Opciones:
-//   1 → Leer pH en tiempo real         (sensor PH-4502C, pin A2)
-//   2 → Leer temperatura en tiempo real (sensor DS18B20, pin 7)
-//   3 → Calibración de offset BNC      (ajustar POT2 del módulo pH)
-//   4 → Calibración con buffers        (Lagrange — actualiza EEPROM)
+//   1 → Leer pH en tiempo real           (sensor PH-4502C, pin A2)
+//   2 → Leer temperatura en tiempo real  (sensor DS18B20, pin 7)
+//   3 → Calibración de offset BNC        (ajustar POT2 del módulo pH)
+//   4 → Calibración con buffers          (Lagrange — actualiza EEPROM)
+//   5 → Leer humedad de suelo            (sensor OKY3442, pin A4)
 //   0 → Volver al menú
 
 #include <Arduino.h>
 #include "sensores_analogicos/ph/ph.h"
 #include "sensores_digitales/temperatura_ds18b20/temperatura.h"
+#include "sensores_analogicos/humedad_suelo/humedad.h"
 
 // ─── Constantes de calibración buffer ───────────────────────
 const float CAL_PH_4  =  4.01f;
@@ -76,7 +78,7 @@ void imprimirMenu() {
     Serial.println("=========================================");
     Serial.println("  Kit Sensei");
     Serial.println("=========================================");
-    Serial.print("  Calibracion activa: offset=");
+    Serial.print("  pH calibracion: offset=");
     Serial.print(ph_offset, 4);
     Serial.print("  sens=");
     Serial.println(ph_sensibilidad, 4);
@@ -90,6 +92,7 @@ void imprimirMenu() {
     Serial.println("  2  →  Leer temperatura en tiempo real");
     Serial.println("  3  →  Calibrar offset BNC (POT2)");
     Serial.println("  4  →  Calibrar con soluciones buffer");
+    Serial.println("  5  →  Leer humedad de suelo");
     Serial.println("  0  →  Volver al menu");
     Serial.println("-----------------------------------------");
     Serial.println("Escribe el numero y presiona ENTER:");
@@ -141,6 +144,11 @@ void loop() {
             Serial.println("  A → pH 4.01 + pH 7.00  (muestras acidas)");
             Serial.println("  B → pH 7.00 + pH 10.01 (muestras alcalinas)");
             Serial.println("  Escribe A o B y presiona ENTER:");
+        }
+        else if (opcion == 5) {
+            modoActivo = 5;
+            Serial.println();
+            Serial.println(">> Leyendo humedad de suelo OKY3442 (0 para volver)");
         }
         else if (opcion == 0) { modoActivo = 0; imprimirMenu(); }
         else { Serial.println("Opcion no valida."); imprimirMenu(); }
@@ -254,5 +262,22 @@ void loop() {
             modoActivo = 0;
             imprimirMenu();
         }
+    }
+
+    // ── Modo 5: leer humedad de suelo ────────────────────────
+    else if (modoActivo == 5) {
+        if (Serial.available() > 0) {
+            int v = Serial.parseInt();
+            while (Serial.available() > 0) Serial.read();
+            if (v == 0) { modoActivo = 0; imprimirMenu(); return; }
+        }
+        int   adc     = hum_leerADC();
+        float humedad = hum_calcularHumedad(adc);
+        Serial.print("Humedad: ");
+        Serial.print(humedad, 1);
+        Serial.print("%  (ADC: ");
+        Serial.print(adc);
+        Serial.println(")");
+        delay(1000);
     }
 }
