@@ -1022,57 +1022,29 @@ Paso 3 (dividir entre sensibilidad y sumar a 7): pH = 7 + diferencia / 0.18
 
 ### Código
 
-El siguiente programa configura el pin A2 como entrada analógica. En cada ciclo, lee el valor del ADC, lo convierte a voltaje, y aplica la fórmula obtenida por Lagrange para calcular el pH. El resultado se imprime por el monitor serial cada segundo.
+El proyecto implementa este sensor de forma modular en `src/sensores_analogicos/ph/ph.h` y `ph.cpp`, con calibración persistente en EEPROM. La lectura y calibración se manejan desde el menú principal del kit.
+
+Resumen de las funciones principales:
 
 ```cpp
-// Archivo: src/main.cpp
-// Sensor de pH Líquido PH-4502C
-//
-// Conexiones:
-//   VCC del módulo  →  5V del Arduino Mega
-//   GND del módulo  →  GND del Arduino Mega
-//   Po  del módulo  →  A2 del Arduino Mega
-//   Electrodo E201  →  conector BNC del módulo
+// ph.h — constantes y calibración
+const int   PH_PIN_SENSOR = A2;
+extern float ph_offset;       // Voltaje medido en pH 7 (guardado en EEPROM)
+extern float ph_sensibilidad; // V/pH calculado con Lagrange (guardado en EEPROM)
 
-#include<Arduino.h>
+float ph_leerVoltaje();              // Promedia 10 muestras (elimina ruido)
+float ph_calcularPH(float voltaje);  // Aplica fórmula de Lagrange con los valores activos
 
-// --- Constantes ---
-const int PIN_SENSOR = A2;         // Pin analógico donde está conectado Po
-const float VREF = 5.0;            // Voltaje de referencia del ADC
-const float ADC_MAX = 1024.0;      // 2¹⁰ = 1024 valores posibles
-const float OFFSET_PH7 = 2.5;     // Voltaje de salida cuando el pH es 7 (calibrado)
-const float SENSIBILIDAD = 0.18;   // Voltaje que cambia por cada unidad de pH (V/pH)
-
-void setup() {
-  Serial.begin(9600);              // Inicia comunicación serial
-  pinMode(PIN_SENSOR, INPUT);      // Configura A2 como entrada
-}
-
-void loop() {
-  // Lee el valor crudo del ADC (entre 0 y 1023)
-  int lectura = analogRead(PIN_SENSOR);
-
-  // Paso 1: convierte la lectura del ADC a voltaje
-  // Fórmula: Vsensor = (lectura × Vref) / 1024
-  float vSensor = (lectura * VREF) / ADC_MAX;
-
-  // Paso 2: calcula la diferencia respecto al voltaje de pH 7
-  // Si el voltaje es mayor que 2.5, el pH es ácido (menor a 7)
-  // Si el voltaje es menor que 2.5, el pH es alcalino (mayor a 7)
-  float diferencia = OFFSET_PH7 - vSensor;
-
-  // Paso 3: divide entre la sensibilidad y suma a 7
-  // Fórmula de Lagrange: pH = 7 + (2.5 − Vout) / 0.18
-  float pH = 7.0 + (diferencia / SENSIBILIDAD);
-
-  // Envía el resultado por el puerto serial
-  Serial.print("pH: ");
-  Serial.print(pH, 2);             // Imprime con 2 decimales
-  Serial.println();
-
-  delay(1000);                     // Espera 1 segundo
-}
+void  ph_inicializar();              // Carga calibración de EEPROM al encender
+void  ph_guardarCalibracion(float offset, float sensibilidad); // Guarda nueva calibración
 ```
+
+Para usar el sensor desde el Serial Monitor:
+- Opción `1`: leer pH en tiempo real
+- Opción `3`: calibrar offset BNC (ajustar POT2)
+- Opción `4`: calibrar con soluciones buffer (Lagrange, guarda en EEPROM)
+
+Ver `docs/ph_guia_ejecucion.md` para el flujo completo de calibración y uso.
 
 ### Referencias
 
@@ -1261,12 +1233,19 @@ Para una calibración básica, se mide la lectura del ADC con la sonda al aire (
 - Lectura en seco (al aire): valor alto, por ejemplo 1023
 - Lectura en agua: valor bajo, por ejemplo 300
 
-Con esos dos puntos se puede mapear la lectura a un porcentaje:
+Con esos dos puntos se aplica interpolación de Lagrange grado 1, igual que con el sensor de pH.
+Se definen: x0 = ADC en seco (humedad 0%), x1 = ADC en húmedo (humedad 100%).
 
-> Humedad (%) = [(lectura_seco − lectura_actual) / (lectura_seco − lectura_agua)] × 100
-> 
+> P(x) = y0·(x−x1)/(x0−x1) + y1·(x−x0)/(x1−x0)
 
-En el código se implementa directamente con esta fórmula, ajustando los valores de calibración al terreno real.
+Sustituyendo y0 = 0 y y1 = 100:
+
+> Humedad (%) = 100 × (lectura_actual − ADC_seco) / (ADC_humedo − ADC_seco)
+
+Esta calibración se hace desde el menú del kit (opción 7) y se guarda en la
+EEPROM del Arduino Mega, por lo que no es necesario recalibrar cada vez que
+se enciende la tarjeta. Ver `src/sensores_analogicos/humedad_suelo/humedad.h`
+y `humedad.cpp` para la implementación completa.
 
 ### Conexión al Arduino Mega 2560
 
@@ -1276,48 +1255,29 @@ En el código se implementa directamente con esta fórmula, ajustando los valore
 
 ### Código
 
-El siguiente programa lee la salida analógica del sensor de humedad de suelo y convierte la lectura a un porcentaje aproximado de humedad usando dos valores de calibración. Los valores de calibración (LECTURA_SECO y LECTURA_AGUA) deben ajustarse midiendo en el terreno real.
+El proyecto implementa este sensor con calibración persistente en EEPROM
+(igual que el sensor de pH), en lugar de un sketch aislado. La lectura y el
+cálculo de humedad están en `src/sensores_analogicos/humedad_suelo/humedad.cpp`,
+y la calibración de 2 puntos se ejecuta desde el menú principal
+(`src/main.cpp`, opción 7).
+
+Resumen de las funciones principales:
 
 ```cpp
-// Archivo: src/main.cpp
-// Sensor de Humedad de Suelo (OKY3442)
-//
-// Conexiones:
-//   VCC del módulo  →  5V del Arduino Mega
-//   GND del módulo  →  GND del Arduino Mega
-//   A0  del módulo  →  A4 del Arduino Mega
+// humedad.h — constantes y calibración
+const int HUM_PIN_SENSOR = A4;
+extern int hum_adc_seco;    // ADC con la sonda seca (calibrado en campo)
+extern int hum_adc_humedo;  // ADC con la sonda húmeda (calibrado en campo)
 
-#include<Arduino.h>
+int   hum_leerADC();                 // Promedia 10 lecturas (método igual al pH)
+float hum_calcularHumedad(int adc);  // Aplica Lagrange con los 2 puntos activos
 
-const int PIN_SENSOR = A4;
-
-// Valores de calibración (ajustar midiendo en el terreno real)
-const int LECTURA_SECO = 1023;    // Lectura del ADC con la sonda al aire (seca)
-const int LECTURA_AGUA = 300;     // Lectura del ADC con la sonda en agua
-
-void setup() {
-  Serial.begin(9600);
-  pinMode(PIN_SENSOR, INPUT);
-}
-
-void loop() {
-  int lectura = analogRead(PIN_SENSOR);
-
-  // Convierte la lectura a porcentaje de humedad
-  // Seco = lectura alta, húmedo = lectura baja
-  float humedad = ((float)(LECTURA_SECO - lectura) / (LECTURA_SECO - LECTURA_AGUA)) * 100.0;
-
-  // Limita el resultado entre 0 y 100
-  if (humedad < 0) humedad = 0;
-  if (humedad > 100) humedad = 100;
-
-  Serial.print("Humedad: ");
-  Serial.print(humedad, 1);
-  Serial.println(" %");
-
-  delay(1000);
-}
+void  hum_inicializar();                          // Carga calibración de EEPROM
+void  hum_guardarCalibracion(int seco, int humedo); // Guarda nueva calibración
 ```
+
+La calibración de 2 puntos es obligatoria para obtener un porcentaje confiable,
+ya que la relación entre ADC y humedad depende del tipo de suelo específico.
 
 ### Referencias
 
@@ -1754,62 +1714,25 @@ El sensor sumergible tiene **tres cables** que salen del tubo de acero inoxidabl
 
 ### Código
 
-El siguiente programa usa las librerías **OneWire** y **DallasTemperature** para comunicarse con el DS18B20. Se instalan desde PlatformIO. En cada ciclo, el Arduino le pide al sensor que mida la temperatura, espera a que termine la conversión y lee el resultado en grados Celsius. El valor se imprime por el monitor serial cada segundo.
+El proyecto implementa este sensor de forma modular en `src/sensores_digitales/temperatura_ds18b20/temperatura.cpp`, con las librerías OneWire y DallasTemperature (ya configuradas en `platformio.ini`). La lectura se activa desde el menú principal del kit (opción 2).
 
-Para instalar las librerías, se agregan al `platformio.ini`:
-
-```
-[env:megaatmega2560]
-platform= atmelavr
-board= megaatmega2560
-framework= arduino
-monitor_speed=9600
-lib_deps=
-  paulstoffregen/OneWire
-  milesburton/DallasTemperature
-```
+Resumen de las funciones principales:
 
 ```cpp
-// Archivo: src/main.cpp
-// Sensor de Temperatura DS18B20 (sumergible)
-//
-// Conexiones:
-//   Cable rojo      →  5V del Arduino Mega
-//   Cable negro     →  GND del Arduino Mega
-//   Cable amarillo  →  Pin digital 7 del Arduino Mega
-//   Resistencia 4.7 kΩ entre cable amarillo y 5V (pull-up)
+// temperatura.h
+const int TEMP_PIN_SENSOR = 7;   // Pin digital con resistencia 4.7 kΩ a 5V
+const int TEMP_RESOLUCION = 12;  // 12 bits → 0.0625 °C, ~750 ms por lectura
 
-#include<Arduino.h>
-#include<OneWire.h>
-#include<DallasTemperature.h>
-
-// --- Constantes ---
-const int PIN_DATOS = 7;           // Pin digital donde está el cable de datos
-
-// --- Objetos ---
-OneWire oneWire(PIN_DATOS);        // Comunicación 1-Wire en el pin 7
-DallasTemperature sensor(&oneWire); // Librería del DS18B20
-
-void setup() {
-  Serial.begin(9600);              // Inicia comunicación serial
-  sensor.begin();                  // Inicia el sensor DS18B20
-}
-
-void loop() {
-  // Le pide al sensor que mida la temperatura
-  sensor.requestTemperatures();
-
-  // Lee la temperatura en grados Celsius del primer sensor encontrado
-  float temperatura = sensor.getTempCByIndex(0);
-
-  // Imprime el resultado
-  Serial.print("Temperatura: ");
-  Serial.print(temperatura, 2);    // 2 decimales
-  Serial.println(" °C");
-
-  delay(1000);                     // Espera 1 segundo
-}
+void  temp_inicializar();        // Llama en setup(): inicia el bus 1-Wire
+float temp_leerCelsius();        // Solicita medición y devuelve °C
+                                 // Devuelve -127 (TEMP_ERROR) si hay fallo
 ```
+
+Para usar el sensor desde el Serial Monitor:
+1. Subir `main.cpp` al Arduino.
+2. Abrir Serial Monitor a 9600 baudios.
+3. Escribir `2` y presionar ENTER.
+4. Las lecturas aparecen cada ~1.75 segundos (750 ms de conversión + 1 s de delay).
 
 ### Referencias
 

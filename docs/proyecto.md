@@ -121,7 +121,7 @@ Documentación técnica completa de cada sensor: [`docs/sensores.md`](sensores.m
 | # | Sensor | Pin Mega |
 |---|--------|----------|
 | 8 | Sensor de Efecto Hall SM351LT | Digital 22 |
-| 9 | Sensor de Temperatura DS18B20 (sumergible) | Digital 7 | ✅ |
+| 9 | Sensor de Temperatura DS18B20 (sumergible) | Digital 7 |
 
 Los sensores 10–16 no están definidos todavía.
 
@@ -225,33 +225,58 @@ ESP32 NodeMCU
 ```
 PAPIME/
 ├── README.md                               ← presentación del proyecto
-├── platformio.ini                          ← entorno Mega + entorno ESP32
+├── platformio.ini                          ← entorno Mega (lib_deps: OneWire, DallasTemperature)
 ├── src/                                    ← código del Arduino Mega
-│   ├── main.cpp
+│   ├── main.cpp                            ← menú principal (todos los sensores)
 │   ├── sensores_analogicos/
-│   │   ├── ph/                             ✅ implementado
+│   │   ├── ph/                             ✅ implementado (ph.h, ph.cpp, datasheet, pinout)
+│   │   ├── humedad_suelo/                  ✅ implementado (humedad.h, humedad.cpp, datasheet, pinout)
 │   │   ├── voltaje/                        ⬜ pendiente
 │   │   ├── corriente/                      ⬜ pendiente
 │   │   ├── fototransistor/                 ⬜ pendiente
-│   │   ├── humedad_suelo/                  ⬜ pendiente
 │   │   ├── co2/                            ⬜ pendiente
 │   │   └── pulso_cardiaco/                 ⬜ pendiente
 │   └── sensores_digitales/
 │       ├── hall/                           ⬜ pendiente
-│       └── temperatura_ds18b20/            ✅ implementado
+│       └── temperatura_ds18b20/            ✅ implementado (temperatura.h, temperatura.cpp, datasheet, pinout)
 ├── esp32/                                  ← código de la ESP32
 │   └── main.cpp                            ⬜ pendiente
 ├── docs/                                   ← documentación del proyecto
 │   ├── proyecto.md                         ← este archivo
 │   ├── sensores.md                         ← documentación técnica de cada sensor
-│   └── android.md                          ← coordinación con desarrollador Android
+│   ├── protocolo.md                        ← protocolo de comunicación ESP32 ↔ App
+│   ├── commits.md                          ← convención de mensajes de commit
+│   ├── android.md                          ← coordinación con desarrollador Android
+│   ├── ph_guia_ejecucion.md                ← guía de uso de los sketches del sensor pH
+│   └── practicas/                          ← prácticas de validación estadística
+│       ├── practica_01_ph_reaccion_acido_base.md
+│       ├── practica_02_temperatura_enfriamiento.md
+│       ├── practica_03_ph_temperatura_reaccion_efervescente.md
+│       └── practica_04_humedad_suelo.md
 └── extras/
-    ├── ph/                                 ← archivos de calibración del sensor pH
-    │   ├── calibracion_bnc.cpp
-    │   └── calibracion_buffer.cpp
-    └── temperatura_ds18b20/                ← verificación/calibración del DS18B20
-        └── calibracion_ds18b20.cpp
+    └── ph/                                 ← archivos de calibración del sensor pH
+        ├── calibracion_bnc.cpp             ← ajuste de offset (POT2)
+        └── calibracion_buffer.cpp          ← calibración con soluciones buffer (Lagrange)
 ```
+
+### Menú del `main.cpp`
+
+El programa principal muestra un menú en el Serial Monitor con las siguientes opciones:
+
+| Opción | Función |
+|--------|---------|
+| 1 | Leer pH en tiempo real (PH-4502C) |
+| 2 | Leer temperatura en tiempo real (DS18B20) |
+| 3 | Calibrar offset BNC del sensor pH (POT2) |
+| 4 | Calibrar pH con soluciones buffer (Lagrange, guarda en EEPROM) |
+| 5 | Leer humedad de suelo (OKY3442) |
+| 6 | Leer pH y temperatura simultáneamente |
+| 7 | Calibrar humedad de suelo con 2 puntos (Lagrange, guarda en EEPROM) |
+| 0 | Volver al menú principal |
+
+La calibración del sensor de pH (offset y sensibilidad) y del sensor de humedad de suelo (ADC en seco y en húmedo) se guardan en la EEPROM del Arduino Mega, por lo que persisten aunque se apague la tarjeta. Si no hay calibración guardada, se usan los valores por defecto definidos en `ph.h` y `humedad.h` respectivamente.
+
+La calibración de humedad es necesaria porque la relación entre el ADC y el porcentaje de humedad depende del tipo de suelo (no hay un valor fijo de fábrica).
 
 ### Convenciones de código
 
@@ -269,16 +294,17 @@ PAPIME/
 
 | Componente | Estado |
 |---|---|
-| Sensor de pH PH-4502C | ✅ Implementado |
+| Sensor de pH PH-4502C | ✅ Implementado (con calibración persistente en EEPROM) |
+| Sensor de Temperatura DS18B20 | ✅ Implementado |
+| Sensor de Humedad de Suelo OKY3442 | ✅ Implementado |
 | Sensor de Voltaje AR2657 | ⬜ Pendiente |
 | Sensor de Corriente ACS712 | ⬜ Pendiente |
 | Fototransistor PT331C | ⬜ Pendiente |
-| Sensor de Humedad OKY3442 | ⬜ Pendiente |
 | Sensor de CO2 MG811 | ⬜ Pendiente |
 | Sensor de Pulso OKY3471-5 | ⬜ Pendiente |
 | Sensor Hall SM351LT | ⬜ Pendiente |
-| Sensor Temperatura DS18B20 | ✅ Implementado |
 | Sensores 10–16 | ❓ No definidos |
+| Prácticas de validación (pH, temperatura, ambos, humedad) | ✅ Documentadas (docs/practicas/) |
 | Display LCD 20×4 con I2C | ⬜ Pendiente |
 | Conexión Mega ↔ ESP32 (UART) | ⬜ Pendiente |
 | Asignación de pines del cable UTP | ⬜ Pendiente |

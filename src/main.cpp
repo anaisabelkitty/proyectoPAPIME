@@ -6,6 +6,8 @@
 //   3 → Calibración de offset BNC        (ajustar POT2 del módulo pH)
 //   4 → Calibración con buffers          (Lagrange — actualiza EEPROM)
 //   5 → Leer humedad de suelo            (sensor OKY3442, pin A4)
+//   6 → pH + Temperatura simultáneos     (para práctica 03)
+//   7 → Calibrar humedad de suelo        (2 puntos, Lagrange — EEPROM)
 //   0 → Volver al menú
 
 #include <Arduino.h>
@@ -27,6 +29,10 @@ float cal_v7     = 0.0f;
 float cal_v2     = 0.0f;
 float cal_ph2    = 0.0f;
 int   cal_paso   = 0;   // 0=inicial  1=midiendo pH7  2=midiendo 2° buffer
+
+// ─── Estado calibración de humedad ───────────────────────────
+int humCal_paso  = 0;   // 0=esperando ENTER (seco)  1=esperando ENTER (humedo)
+int humCal_seco  = 0;
 
 // ─── Utilidades de calibración ───────────────────────────────
 
@@ -94,6 +100,7 @@ void imprimirMenu() {
     Serial.println("  4  →  Calibrar con soluciones buffer");
     Serial.println("  5  →  Leer humedad de suelo");
     Serial.println("  6  →  pH + Temperatura simultaneos");
+    Serial.println("  7  →  Calibrar humedad de suelo (2 puntos)");
     Serial.println("  0  →  Volver al menu");
     Serial.println("-----------------------------------------");
     Serial.println("Escribe el numero y presiona ENTER:");
@@ -106,6 +113,7 @@ void setup() {
     pinMode(PH_PIN_SENSOR, INPUT);
     ph_inicializar();       // Carga calibración de EEPROM (si existe)
     temp_inicializar();
+    hum_inicializar();      // Carga calibración de EEPROM (si existe)
     imprimirMenu();
 }
 
@@ -157,6 +165,18 @@ void loop() {
             Serial.println(">> pH + Temperatura simultaneos (0 para volver)");
             Serial.println("pH        | Temperatura");
             Serial.println("----------|-----------");
+        }
+        else if (opcion == 7) {
+            modoActivo = 7;
+            humCal_paso = 0;
+            Serial.println();
+            Serial.println("=========================================");
+            Serial.println("  CALIBRACION DE HUMEDAD DE SUELO");
+            Serial.println("=========================================");
+            Serial.println("  Paso 1: coloca la sonda al aire o en");
+            Serial.println("  suelo COMPLETAMENTE SECO.");
+            Serial.println("  Presiona ENTER cuando este lista.");
+            Serial.println("  (Escribe 0 para salir)");
         }
         else if (opcion == 0) { modoActivo = 0; imprimirMenu(); }
         else { Serial.println("Opcion no valida."); imprimirMenu(); }
@@ -305,5 +325,53 @@ void loop() {
         if (t == TEMP_ERROR) Serial.println("ERROR DS18B20");
         else { Serial.print(t, 2); Serial.println(" °C"); }
         delay(200);
+    }
+
+    // ── Modo 7: calibración de humedad (2 puntos) ────────────
+    else if (modoActivo == 7) {
+
+        // Paso 0: esperar tecla para medir el punto SECO
+        if (humCal_paso == 0 && Serial.available() > 0) {
+            char c = (char)Serial.read();
+            while (Serial.available() > 0) Serial.read();
+
+            if (c == '0') { modoActivo = 0; imprimirMenu(); return; }
+
+            humCal_seco = hum_leerADC();
+            Serial.print("  ADC (seco): ");
+            Serial.println(humCal_seco);
+            Serial.println();
+            Serial.println("  Paso 2: coloca la sonda en agua o en");
+            Serial.println("  suelo COMPLETAMENTE SATURADO de agua.");
+            Serial.println("  Presiona ENTER cuando este lista.");
+            humCal_paso = 1;
+        }
+
+        // Paso 1: esperar tecla para medir el punto HUMEDO y calcular
+        else if (humCal_paso == 1 && Serial.available() > 0) {
+            char c = (char)Serial.read();
+            while (Serial.available() > 0) Serial.read();
+
+            if (c == '0') { modoActivo = 0; imprimirMenu(); return; }
+
+            int humedo = hum_leerADC();
+            Serial.print("  ADC (humedo): ");
+            Serial.println(humedo);
+
+            hum_guardarCalibracion(humCal_seco, humedo);
+
+            Serial.println();
+            Serial.println("=========================================");
+            Serial.println("  ✔ Calibracion guardada en EEPROM.");
+            Serial.print("  ADC seco = "); Serial.println(humCal_seco);
+            Serial.print("  ADC humedo = "); Serial.println(humedo);
+            Serial.println("  El modo 5 ya usa estos valores.");
+            Serial.println("  Escribe 0 para volver al menu.");
+            Serial.println("=========================================");
+
+            humCal_paso = 0;
+            modoActivo  = 0;
+            imprimirMenu();
+        }
     }
 }

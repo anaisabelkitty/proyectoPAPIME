@@ -34,7 +34,7 @@ Un valor bajo indica que el sensor es estable y repetible.
 ## Materiales
 
 - Kit Sensei con sensor OKY3442 conectado (pin A4)
-- Computadora con Serial Monitor abierto a 9600 baudios (escribir `5` en el menú para activar lectura de humedad)
+- Computadora con Serial Monitor abierto a 9600 baudios (`7` para calibrar, `5` para leer humedad)
 - Para la Parte A:
   - Sonda sin tocar nada (en el aire)
   - Un vaso con agua
@@ -43,6 +43,23 @@ Un valor bajo indica que el sensor es estable y repetible.
 - Para la Parte B:
   - Una maceta con tierra seca
   - Un vaso con agua (para ir agregando poco a poco)
+
+---
+
+## Paso previo — Calibración de 2 puntos (obligatoria)
+
+El OKY3442 no tiene un rango fijo de fábrica: la relación entre el ADC y la
+humedad depende del tipo de suelo. Antes de iniciar la práctica, calibrar
+el sensor desde el menú del kit:
+
+1. En el Serial Monitor, escribir `7` (Calibrar humedad de suelo).
+2. Colocar la sonda al aire o en suelo completamente seco. Presionar ENTER.
+3. Colocar la sonda en agua o en suelo completamente saturado. Presionar ENTER.
+4. El Arduino guarda automáticamente los dos valores de ADC en la EEPROM.
+   Esta calibración persiste aunque se apague la tarjeta.
+
+**ADC seco registrado:** _______________
+**ADC húmedo registrado:** _______________
 
 ---
 

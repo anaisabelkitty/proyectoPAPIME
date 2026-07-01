@@ -2,6 +2,7 @@
 #define HUMEDAD_H
 
 #include <Arduino.h>
+#include <EEPROM.h>
 
 // --- Constantes del sensor de humedad de suelo OKY3442 ---
 // Chip:    LM393 (comparador con salida analógica y digital)
@@ -14,37 +15,48 @@
 //   D0  del módulo → no se usa en este proyecto
 //
 // Funcionamiento de la salida analógica (A0):
-//   Suelo SECO   → alta resistencia → voltaje alto → ADC alto (~1023)
-//   Suelo HÚMEDO → baja resistencia → voltaje bajo → ADC bajo (~0)
-//   La relación es INVERSA: más humedad = ADC más bajo.
+//   Suelo SECO   → alta resistencia → voltaje alto → ADC alto
+//   Suelo HÚMEDO → baja resistencia → voltaje bajo → ADC bajo
+//   La relación exacta depende del tipo de suelo (arena, tierra negra,
+//   minerales, fertilizantes, etc.), por eso NO se usan valores fijos
+//   de fábrica. Se calibra con 2 puntos reales, igual que el sensor de pH.
 //
-// Conversión a porcentaje de humedad:
-//   Se usa interpolación de Lagrange grado 1 con dos puntos:
-//     (ADC=1023, humedad=0%)  — suelo completamente seco
-//     (ADC=0,    humedad=100%) — suelo completamente húmedo
-//   Resultado: humedad(%) = (1 - ADC/1023) × 100 = (1023 - ADC) × 100 / 1023
+// Calibración:
+//   1. Con la sonda al aire o en suelo completamente seco → anotar ADC (seco)
+//   2. Con la sonda en agua o suelo saturado → anotar ADC (húmedo)
+//   Con esos dos puntos se aplica interpolación de Lagrange grado 1
+//   para convertir cualquier lectura de ADC a porcentaje de humedad.
 //
-// Potenciómetro del módulo:
-//   Ajusta el umbral de la salida digital D0 (no afecta la salida analógica A0).
-//
-// Referencia:
-//   AG Electrónica. (2024). OKY3442 — Sensor de humedad del suelo.
-//   https://agelectronica.com/detalle?busca=OKY3442
+// Los valores de calibración se guardan en EEPROM y se recuperan
+// automáticamente al encender el Arduino. Si no hay calibración
+// guardada, se usan valores por defecto (deben ajustarse en campo).
 
-const int   HUM_PIN_SENSOR = A4;    // Pin analógico del Arduino Mega
-const float HUM_VREF       = 5.0;   // Voltaje de referencia del ADC
-const float HUM_ADC_MAX    = 1023.0; // Máximo valor del ADC (10 bits → 0..1023)
+const int   HUM_PIN_SENSOR = A4;
+const float HUM_VREF       = 5.0;
+const float HUM_ADC_MAX    = 1023.0;
 
-// Puntos de Lagrange para la conversión:
-//   x0=1023 (seco)  → y0=0%
-//   x1=0    (húmedo) → y1=100%
-const float HUM_ADC_SECO   = 1023.0; // ADC cuando el suelo está completamente seco
-const float HUM_ADC_HUMEDO = 0.0;    // ADC cuando el suelo está completamente húmedo
-const float HUM_PCT_SECO   = 0.0;    // Porcentaje correspondiente al suelo seco
-const float HUM_PCT_HUMEDO = 100.0;  // Porcentaje correspondiente al suelo húmedo
+// Valores por defecto (usar solo como referencia inicial —
+// se recomienda calibrar en el suelo real con la opción del menú)
+const int HUM_ADC_SECO_DEFAULT   = 1023; // ADC típico con la sonda al aire
+const int HUM_ADC_HUMEDO_DEFAULT = 300;  // ADC típico con la sonda en agua
 
-// Funciones
+// Direcciones en EEPROM (después de las usadas por el sensor de pH: 0-8)
+const int HUM_EEPROM_ADDR_SECO   = 16; // bytes 16–19 (int)
+const int HUM_EEPROM_ADDR_HUMEDO = 20; // bytes 20–23 (int)
+const int HUM_EEPROM_ADDR_FLAG   = 24; // byte 24: 0xCD indica calibración válida
+const byte HUM_EEPROM_FLAG_VALIDO = 0xCD;
+
+// Variables de calibración activas (modificables en tiempo de ejecución)
+extern int hum_adc_seco;
+extern int hum_adc_humedo;
+
+// Funciones de medición
 int   hum_leerADC();
 float hum_calcularHumedad(int lectura_adc);
+
+// Funciones de calibración persistente
+void hum_inicializar();                          // Carga calibración de EEPROM
+void hum_guardarCalibracion(int seco, int humedo); // Guarda en EEPROM
+bool hum_tieneCalibacionGuardada();
 
 #endif

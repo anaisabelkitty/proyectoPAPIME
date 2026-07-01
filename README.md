@@ -55,15 +55,21 @@ Sensores → Arduino Mega → ESP32 → Servidor HTTP → Página web / App Andr
 
 ```
 PAPIME/
-├── platformio.ini          ← configuración PlatformIO (Mega + ESP32)
+├── platformio.ini          ← configuración PlatformIO (Mega)
 ├── src/                    ← código del Arduino Mega
-│   ├── main.cpp
+│   ├── main.cpp             ← menú principal con todos los sensores
 │   ├── sensores_analogicos/
+│   │   ├── ph/               ✅ implementado
+│   │   └── humedad_suelo/    ✅ implementado
 │   └── sensores_digitales/
+│       └── temperatura_ds18b20/  ✅ implementado
 ├── esp32/                  ← código de la ESP32 (pendiente)
+├── docs/                   ← documentación técnica y prácticas
+│   ├── sensores.md          ← documentación técnica de cada sensor
+│   ├── practicas/           ← prácticas de validación estadística
+│   └── android.md           ← coordinación con el desarrollador Android
 └── extras/
-    ├── Documento.md        ← documentación técnica de cada sensor
-    └── android.md          ← coordinación con el desarrollador Android
+    └── ph/                  ← sketches de calibración del sensor pH
 ```
 
 ---
@@ -78,4 +84,4 @@ PAPIME/
 
 ## Estado del proyecto
 
-El sensor de pH (PH-4502C) está implementado. Los demás sensores, la ESP32, el servidor web y la página web están en desarrollo.
+Implementados: sensor de pH (PH-4502C, con calibración persistente en EEPROM), sensor de temperatura (DS18B20) y sensor de humedad de suelo (OKY3442). Los tres cuentan con prácticas de validación estadística en `docs/practicas/`. Los demás sensores, la ESP32, el servidor web y la página web están en desarrollo.
