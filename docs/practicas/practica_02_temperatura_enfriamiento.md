@@ -15,11 +15,34 @@ dinámicas (curva de enfriamiento en tiempo real).
 
 ---
 
+## Fórmulas
+
+**Promedio (x̄):**
+
+> x̄ = (x₁ + x₂ + x₃ + x₄ + x₅) / n
+
+Donde n = 5 (número de lecturas por punto).
+
+**Desviación estándar (σ):**
+
+> σ = √[ Σ(xᵢ − x̄)² / (n − 1) ]
+
+Mide qué tanto se dispersan las lecturas respecto al promedio.
+Un valor bajo indica que el sensor es estable y repetible.
+
+**Error absoluto:**
+
+> Error = | x̄ − valor_referencia |
+
+Diferencia entre lo que midió el Sensei y lo que midió el instrumento de referencia.
+
+---
+
 ## Materiales
 
 - Kit Sensei con sensor DS18B20 conectado (pin digital 7, con resistencia 4.7 kΩ)
 - Termómetro digital de referencia (modelo: _______________)
-- Computadora con Serial Monitor abierto a 9600 baudios, **modo 2 activo**
+- Computadora con Serial Monitor abierto a 9600 baudios (escribir `2` en el menú para activar lectura de temperatura)
 - Para la Parte A:
   - Vaso con agua y hielo (temperatura ~0–5°C)
   - Vaso con agua a temperatura ambiente (~20–25°C)

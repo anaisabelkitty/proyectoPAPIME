@@ -93,6 +93,7 @@ void imprimirMenu() {
     Serial.println("  3  →  Calibrar offset BNC (POT2)");
     Serial.println("  4  →  Calibrar con soluciones buffer");
     Serial.println("  5  →  Leer humedad de suelo");
+    Serial.println("  6  →  pH + Temperatura simultaneos");
     Serial.println("  0  →  Volver al menu");
     Serial.println("-----------------------------------------");
     Serial.println("Escribe el numero y presiona ENTER:");
@@ -149,6 +150,13 @@ void loop() {
             modoActivo = 5;
             Serial.println();
             Serial.println(">> Leyendo humedad de suelo OKY3442 (0 para volver)");
+        }
+        else if (opcion == 6) {
+            modoActivo = 6;
+            Serial.println();
+            Serial.println(">> pH + Temperatura simultaneos (0 para volver)");
+            Serial.println("pH        | Temperatura");
+            Serial.println("----------|-----------");
         }
         else if (opcion == 0) { modoActivo = 0; imprimirMenu(); }
         else { Serial.println("Opcion no valida."); imprimirMenu(); }
@@ -279,5 +287,23 @@ void loop() {
         Serial.print(adc);
         Serial.println(")");
         delay(1000);
+    }
+
+    // ── Modo 6: pH + temperatura simultáneos ─────────────────
+    else if (modoActivo == 6) {
+        if (Serial.available() > 0) {
+            int v = Serial.parseInt();
+            while (Serial.available() > 0) Serial.read();
+            if (v == 0) { modoActivo = 0; imprimirMenu(); return; }
+        }
+        float t       = temp_leerCelsius();
+        float voltaje = ph_leerVoltaje();
+        float pH      = ph_calcularPH(voltaje);
+
+        Serial.print(pH, 2);
+        Serial.print("      | ");
+        if (t == TEMP_ERROR) Serial.println("ERROR DS18B20");
+        else { Serial.print(t, 2); Serial.println(" °C"); }
+        delay(200);
     }
 }

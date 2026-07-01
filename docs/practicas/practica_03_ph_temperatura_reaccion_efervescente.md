@@ -16,12 +16,35 @@ al mismo tiempo).
 
 ---
 
+## Fórmulas
+
+**Promedio (x̄):**
+
+> x̄ = (x₁ + x₂ + x₃ + x₄ + x₅) / n
+
+Donde n = 5 (número de lecturas por punto).
+
+**Desviación estándar (σ):**
+
+> σ = √[ Σ(xᵢ − x̄)² / (n − 1) ]
+
+Mide qué tanto se dispersan las lecturas respecto al promedio.
+Un valor bajo indica que el sensor es estable y repetible.
+
+**Error absoluto:**
+
+> Error = | x̄ − valor_referencia |
+
+Diferencia entre lo que midió el Sensei y lo que midió el instrumento de referencia.
+
+---
+
 ## Materiales
 
 - Kit Sensei con PH-4502C (pin A2) y DS18B20 (pin 7) conectados simultáneamente
 - pHmetro digital de referencia (modelo: _______________)
 - Termómetro digital de referencia (modelo: _______________)
-- Computadora con Serial Monitor abierto a 9600 baudios, **modo 3 activo**
+- Computadora con Serial Monitor abierto a 9600 baudios (escribir `6` en el menú para activar lectura simultánea de pH y temperatura)
 - Agua destilada para enjuagar el electrodo de pH entre muestras
 - Servilletas o papel absorbente
 - Vasos de vidrio anchos (uno por muestra, mínimo 250 ml, para que quepan ambos sensores)

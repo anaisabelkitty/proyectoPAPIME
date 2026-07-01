@@ -15,11 +15,34 @@ condiciones dinámicas (reacción ácido-base en tiempo real).
 
 ---
 
+## Fórmulas
+
+**Promedio (x̄):**
+
+> x̄ = (x₁ + x₂ + x₃ + x₄ + x₅) / n
+
+Donde n = 5 (número de lecturas por punto).
+
+**Desviación estándar (σ):**
+
+> σ = √[ Σ(xᵢ − x̄)² / (n − 1) ]
+
+Mide qué tanto se dispersan las lecturas respecto al promedio.
+Un valor bajo indica que el sensor es estable y repetible.
+
+**Error absoluto:**
+
+> Error = | x̄ − valor_referencia |
+
+Diferencia entre lo que midió el Sensei y lo que midió el instrumento de referencia.
+
+---
+
 ## Materiales
 
 - Kit Sensei con sensor PH-4502C conectado (pin A2)
 - pHmetro digital de referencia (modelo: _______________)
-- Computadora con Serial Monitor abierto a 9600 baudios, **modo 1 activo**
+- Computadora con Serial Monitor abierto a 9600 baudios (escribir `1` en el menú para activar lectura de pH)
 - Agua destilada para enjuagar el electrodo entre muestras
 - Servilletas o papel absorbente
 - Vasos pequeños (uno por muestra)
