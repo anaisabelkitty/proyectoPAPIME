@@ -66,7 +66,7 @@ Diferencia entre lo que midió el Sensei y lo que midió el instrumento de refer
   - Refresco de cola
   - Leche entera
   - Agua de la llave
-  - Agua con bicarbonato (1 cucharadita en 250 ml)
+  - Agua con bicarbonato (3 g en 250 ml)
 - Para la Parte B:
   - 200 ml de agua a temperatura ambiente
   - 1 tableta de antiácido efervescente (Alka-Seltzer, Picot, o similar)

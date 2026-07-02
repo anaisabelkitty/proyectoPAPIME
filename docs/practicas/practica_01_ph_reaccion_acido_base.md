@@ -64,10 +64,10 @@ Diferencia entre lo que midió el Sensei y lo que midió el instrumento de refer
   - Refresco de cola
   - Leche entera
   - Agua de la llave
-  - Agua con bicarbonato (1 cucharadita en 250 ml de agua)
+  - Agua con bicarbonato (3 g en 250 ml de agua)
 - Para la Parte B:
   - 150 ml de vinagre blanco de cocina
-  - Bicarbonato de sodio (3 cucharaditas)
+  - Bicarbonato de sodio (15 g)
   - Cuchara pequeña
   - Vaso de vidrio (mínimo 250 ml)
 
@@ -217,7 +217,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 1. Verter 150 ml de vinagre en un vaso limpio.
 2. Enjuagar el electrodo y sumergirlo en el vinagre.
 3. Esperar 2 minutos. Anotar 5 lecturas + valor del pHmetro de referencia.
-4. Agregar **½ cucharadita** de bicarbonato, mezclar suavemente y esperar
+4. Agregar **2.5 g** de bicarbonato de sodio, mezclar suavemente y esperar
    60 segundos hasta que las burbujas se calmen.
 5. Anotar 5 lecturas + valor referencia.
 6. Repetir pasos 4 y 5 hasta completar 6 adiciones.
@@ -243,7 +243,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ---
 
-### Punto B1 — ½ cucharadita de bicarbonato
+### Punto B1 — 2.5 g de bicarbonato
 
 **pH referencia:** _______________
 
@@ -259,7 +259,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ---
 
-### Punto B2 — 1 cucharadita
+### Punto B2 — 5 g de bicarbonato
 
 **pH referencia:** _______________
 
@@ -275,7 +275,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ---
 
-### Punto B3 — 1½ cucharaditas
+### Punto B3 — 7.5 g de bicarbonato
 
 **pH referencia:** _______________
 
@@ -291,7 +291,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ---
 
-### Punto B4 — 2 cucharaditas
+### Punto B4 — 10 g de bicarbonato
 
 **pH referencia:** _______________
 
@@ -307,7 +307,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ---
 
-### Punto B5 — 2½ cucharaditas
+### Punto B5 — 12.5 g de bicarbonato
 
 **pH referencia:** _______________
 
@@ -323,7 +323,7 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ---
 
-### Punto B6 — 3 cucharaditas
+### Punto B6 — 15 g de bicarbonato
 
 **pH referencia:** _______________
 
@@ -343,13 +343,13 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 | Punto | Bicarbonato | pH referencia | pH Sensei promedio | Desv. estándar | Error absoluto |
 |-------|-------------|---------------|--------------------|----------------|----------------|
-| B0 | 0 | | | | |
-| B1 | ½ cdita | | | | |
-| B2 | 1 cdita | | | | |
-| B3 | 1½ cditas | | | | |
-| B4 | 2 cditas | | | | |
-| B5 | 2½ cditas | | | | |
-| B6 | 3 cditas | | | | |
+| B0 | 0 g | | | | |
+| B1 | 2.5 g | | | | |
+| B2 | 5 g | | | | |
+| B3 | 7.5 g | | | | |
+| B4 | 10 g | | | | |
+| B5 | 12.5 g | | | | |
+| B6 | 15 g | | | | |
 
 **Error absoluto promedio Parte B:** _______________
 
