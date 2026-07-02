@@ -17,6 +17,18 @@ condiciones dinámicas (reacción ácido-base en tiempo real).
 
 ## Fórmulas
 
+### Notación
+
+| Símbolo | Significado |
+|---------|-------------|
+| x̄ | Promedio de las 5 lecturas (se lee "x barra") |
+| xᵢ | Cada lectura individual (x₁, x₂, x₃, x₄, x₅) |
+| n | Número total de lecturas (n = 5) |
+| Σ | Suma de todos los términos que le siguen |
+| σ | Desviación estándar (se lee "sigma") |
+| √ | Raíz cuadrada |
+| \|·\| | Valor absoluto — hace que el resultado siempre sea positivo |
+
 **Promedio (x̄):**
 
 > x̄ = (x₁ + x₂ + x₃ + x₄ + x₅) / n
