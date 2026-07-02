@@ -159,6 +159,9 @@ y se comparan contra el pHmetro de referencia.
 
 ### Muestra 5 — Agua de la llave (pH esperado: 6.5–8.5)
 
+> Usar agua directamente de la toma disponible en el lugar — no agua purificada ni embotellada.
+> El pH varía según la fuente y el tratamiento (cloración, fluoración), lo que hace esta muestra interesante.
+
 **pH medido por referencia:** _______________
 
 | Lectura | pH Sensei |

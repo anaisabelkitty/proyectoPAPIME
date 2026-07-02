@@ -165,6 +165,8 @@ instrumentos de referencia.
 
 ### Muestra 5 — Agua de la llave (pH esperado: 6.5–8.5)
 
+> Usar agua directamente de la toma disponible en el lugar — no agua purificada ni embotellada.
+
 **pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
