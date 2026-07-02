@@ -16,6 +16,17 @@ son coherentes con las condiciones reales del suelo.
 
 ## Fórmulas
 
+### Notación
+
+| Símbolo | Significado |
+|---------|-------------|
+| x̄ | Promedio de las 5 lecturas (se lee "x barra") |
+| xᵢ | Cada lectura individual (x₁, x₂, x₃, x₄, x₅) |
+| n | Número total de lecturas (n = 5) |
+| Σ | Suma de todos los términos que le siguen |
+| σ | Desviación estándar (se lee "sigma") |
+| √ | Raíz cuadrada |
+
 **Promedio (x̄):**
 
 > x̄ = (x₁ + x₂ + x₃ + x₄ + x₅) / n
