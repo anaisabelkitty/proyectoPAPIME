@@ -95,15 +95,15 @@ y se comparan contra el pHmetro de referencia.
 
 ### Muestra 1 — Jugo de limón (pH esperado: 2.0–3.5)
 
-**pH medido por referencia:** _______________
+**pH medido por referencia:** 2.45
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 2.39 |
+| 2 | 2.41 |
+| 3 | 2.37 |
+| 4 | 2.38| 
+| 5 | 2.40 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -111,15 +111,15 @@ y se comparan contra el pHmetro de referencia.
 
 ### Muestra 2 — Jugo de naranja (pH esperado: 3.5–4.5)
 
-**pH medido por referencia:** _______________
+**pH medido por referencia:** 4.44
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 4.63 |
+| 2 | 4.66 |
+| 3 | 4.65 |
+| 4 | 4.63 |
+| 5 | 4.66 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -127,15 +127,15 @@ y se comparan contra el pHmetro de referencia.
 
 ### Muestra 3 — Refresco de cola (pH esperado: 2.5–3.5)
 
-**pH medido por referencia:** _______________
+**pH medido por referencia:** 2.45
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 2.72 |
+| 2 | 2.72 |
+| 3 | 2.72 |
+| 4 | 2.69 |
+| 5 | 2.71 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -143,15 +143,15 @@ y se comparan contra el pHmetro de referencia.
 
 ### Muestra 4 — Leche entera (pH esperado: 6.5–6.8)
 
-**pH medido por referencia:** _______________
+**pH medido por referencia:** 5.89
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 6.38 |
+| 2 | 6.38 |
+| 3 | 6.37 |
+| 4 | 6.39 |
+| 5 | 6.38 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -162,15 +162,15 @@ y se comparan contra el pHmetro de referencia.
 > Usar agua directamente de la toma disponible en el lugar — no agua purificada ni embotellada.
 > El pH varía según la fuente y el tratamiento (cloración, fluoración), lo que hace esta muestra interesante.
 
-**pH medido por referencia:** _______________
+**pH medido por referencia:** 6.52
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 7.12|
+| 2 | 7.17|
+| 3 | 7.15|
+| 4 | 7.15|
+| 5 | 7.15|
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -178,15 +178,15 @@ y se comparan contra el pHmetro de referencia.
 
 ### Muestra 6 — Agua con bicarbonato (pH esperado: 8.0–9.0)
 
-**pH medido por referencia:** _______________
+**pH medido por referencia:** 7.96
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 8.44 |
+| 2 | 8.41 |
+| 3 | 8.43 |
+| 4 | 8.44 |
+| 5 | 8.44 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -232,15 +232,15 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ### Punto B0 — Solo vinagre
 
-**pH referencia:** _______________
+**pH referencia:** 2.52
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 2.93|
+| 2 | 2.92|
+| 3 | 2.92|
+| 4 | 2.95|
+| 5 | 2.91|
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -248,18 +248,20 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 ### Punto B1 — 2.5 g de bicarbonato
 
-**pH referencia:** _______________
+**pH referencia:** 6.71
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 7.34|
+| 2 | 7.33|
+| 3 | 7.32|
+| 4 | 7.36|
+| 5 | 7.34|
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
+
+Este es el final de uan cucharada de bicarbonato y 75 ml de vinagre 
 ---
 
 ### Punto B2 — 5 g de bicarbonato
