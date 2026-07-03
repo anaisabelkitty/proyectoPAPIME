@@ -233,15 +233,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B0 — Antes de la tableta
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 6.84 | **Temperatura referencia:** 21.4 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 7.88 | 21.37 |
+| 2 | 7.87 | 21.31 |
+| 3 | 7.86 | 21.37 |
+| 4 | 7.94 | 21.37 |
+| 5 | 7.92 | 21.31 |
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
@@ -249,15 +249,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B1 — Minuto 1
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 5.97 | **Temperatura referencia:** 21.0 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 6.86| 21.12|
+| 2 | 6.9| 21.12|
+| 3 | 6.9| 21.12|
+| 4 | 6.84| 21.12|
+| 5 | 6.91| 21.12|
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
@@ -265,15 +265,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B2 — Minuto 2
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 6.04 | **Temperatura referencia:** 20.9 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 6.92| 21.12|
+| 2 | 6.91| 21.19|
+| 3 | 6.91| 21.19|
+| 4 | 6.91| 21.19|
+| 5 | 6.9| 21.19|
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
@@ -281,15 +281,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B3 — Minuto 3
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 6.06 | **Temperatura referencia:** 20.9 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 6.94| 21.19|
+| 2 | 6.96| 21.19|
+| 3 | 6.92| 21.19|
+| 4 | 6.97| 21.19|
+| 5 | 6.94| 21.19|
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
@@ -297,15 +297,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B4 — Minuto 4
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 6.07 | **Temperatura referencia:** 20.9 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 6.94| 21.25|
+| 2 | 6.99| 21.25|
+| 3 | 6.96| 21.25|
+| 4 | 6.95| 21.25|
+| 5 | 6.97| 21.25|
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
@@ -313,15 +313,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B5 — Minuto 5
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 6.1 | **Temperatura referencia:** 20.9 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 6.92| 21.25|
+| 2 | 6.96| 21.25|
+| 3 | 6.96| 21.19|
+| 4 | 6.96| 21.25|
+| 5 | 6.94| 21.25|
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
@@ -329,15 +329,15 @@ sensores respondiendo simultáneamente a la misma reacción química.
 
 ### Punto B6 — Al estabilizarse (sin burbujas)
 
-**pH referencia:** _______________ | **Temperatura referencia:** _______________ °C
+**pH referencia:** 6.1 | **Temperatura referencia:** 20.9 °C
 
 | Lectura | pH Sensei | Temperatura Sensei (°C) |
 |---------|-----------|-------------------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | 6.9| 21.25|
+| 2 | 6.91| 21.25|
+| 3 | 6.88| 21.25|
+| 4 | 6.9| 21.25|
+| 5 | 6.92| 21.25|
 
 **Promedio pH:** _______________ | **Error pH:** _______________ | **Promedio temp.:** _______________ °C | **Error temp.:** _______________ °C
 
