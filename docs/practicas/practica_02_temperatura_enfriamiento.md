@@ -88,15 +88,15 @@ y se comparan contra el termómetro de referencia.
 
 ### Punto A1 — Agua con hielo (temperatura esperada: 0–5°C)
 
-**Temperatura medida por referencia:** _______________ °C
+**Temperatura medida por referencia:** 20.9 °C
 
 | Lectura | Temperatura DS18B20 (°C) |
 |---------|--------------------------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 20.94 |
+| 2 | 2.87 |
+| 3 | 20.94 |
+| 4 | 20.94 |
+| 5 | 20.94 |
 
 **Promedio:** _______________ °C | **Desv. estándar:** _______________ °C | **Error vs referencia:** _______________ °C
 
@@ -104,15 +104,15 @@ y se comparan contra el termómetro de referencia.
 
 ### Punto A2 — Agua a temperatura ambiente (esperada: 20–25°C)
 
-**Temperatura medida por referencia:** _______________ °C
+**Temperatura medida por referencia:** 32.1 °C
 
 | Lectura | Temperatura DS18B20 (°C) |
 |---------|--------------------------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 33.69 |
+| 2 | 33.69 |
+| 3 | 33.69 |
+| 4 | 33.69 |
+| 5 | 33.69 |
 
 **Promedio:** _______________ °C | **Desv. estándar:** _______________ °C | **Error vs referencia:** _______________ °C
 
@@ -120,15 +120,15 @@ y se comparan contra el termómetro de referencia.
 
 ### Punto A3 — Agua tibia (esperada: 40–50°C)
 
-**Temperatura medida por referencia:** _______________ °C
+**Temperatura medida por referencia:** 46.8 °C
 
 | Lectura | Temperatura DS18B20 (°C) |
 |---------|--------------------------|
-| 1 | |
-| 2 | |
-| 3 | |
-| 4 | |
-| 5 | |
+| 1 | 47.56|
+| 2 | 47.56|
+| 3 | 47.56|
+| 4 | 47.56|
+| 5 | 47.56|
 
 **Promedio:** _______________ °C | **Desv. estándar:** _______________ °C | **Error vs referencia:** _______________ °C
 
