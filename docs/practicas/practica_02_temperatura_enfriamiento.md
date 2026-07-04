@@ -1,9 +1,9 @@
 # Práctica 02 — Validación del sensor de temperatura
 
-**Fecha:** _______________
-**Responsable:** _______________
+**Fecha:** 02-07-2026
+**Responsable:** Uriel De La Merced e Isabel Díaz. 
 **Sensor bajo prueba:** DS18B20 sumergible (kit Sensei)
-**Sensor de referencia:** _______________ (modelo del termómetro digital comercial)
+**Sensor de referencia:** Hanna Waterproof (modelo del termómetro digital comercial)
 
 ---
 
@@ -93,7 +93,7 @@ y se comparan contra el termómetro de referencia.
 | Lectura | Temperatura DS18B20 (°C) |
 |---------|--------------------------|
 | 1 | 20.94 |
-| 2 | 2.87 |
+| 2 | 20.87 |
 | 3 | 20.94 |
 | 4 | 20.94 |
 | 5 | 20.94 |
@@ -124,11 +124,11 @@ y se comparan contra el termómetro de referencia.
 
 | Lectura | Temperatura DS18B20 (°C) |
 |---------|--------------------------|
-| 1 | 47.56|
-| 2 | 47.56|
-| 3 | 47.56|
-| 4 | 47.56|
-| 5 | 47.56|
+| 1 | 47.56 |
+| 2 | 47.56 |
+| 3 | 47.56 |
+| 4 | 47.56 |
+| 5 | 47.56 |
 
 **Promedio:** _______________ °C | **Desv. estándar:** _______________ °C | **Error vs referencia:** _______________ °C
 

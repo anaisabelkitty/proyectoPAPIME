@@ -1,9 +1,9 @@
 # Práctica 01 — Validación del sensor de pH
 
-**Fecha:** _______________
-**Responsable:** _______________
+**Fecha:** 02-07-2026
+**Responsable:** Uriel De La Merced e Isabel Díaz. 
 **Sensor bajo prueba:** PH-4502C (kit Sensei)
-**Sensor de referencia:** _______________ (modelo del pHmetro comercial)
+**Sensor de referencia:** Science MED "SM-3BW" (modelo del pHmetro comercial)
 
 ---
 
@@ -53,7 +53,7 @@ Diferencia entre lo que midió el Sensei y lo que midió el instrumento de refer
 ## Materiales
 
 - Kit Sensei con sensor PH-4502C conectado (pin A2)
-- pHmetro digital de referencia (modelo: _______________)
+- pHmetro digital de referencia (modelo: Science MED "SM-3BW")
 - Computadora con Serial Monitor abierto a 9600 baudios (escribir `1` en el menú para activar lectura de pH)
 - Agua destilada para enjuagar el electrodo entre muestras
 - Servilletas o papel absorbente
@@ -102,7 +102,7 @@ y se comparan contra el pHmetro de referencia.
 | 1 | 2.39 |
 | 2 | 2.41 |
 | 3 | 2.37 |
-| 4 | 2.38| 
+| 4 | 2.38 | 
 | 5 | 2.40 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
@@ -166,11 +166,11 @@ y se comparan contra el pHmetro de referencia.
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | 7.12|
-| 2 | 7.17|
-| 3 | 7.15|
-| 4 | 7.15|
-| 5 | 7.15|
+| 1 | 7.12 |
+| 2 | 7.17 |
+| 3 | 7.15 |
+| 4 | 7.15 |
+| 5 | 7.15 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -236,11 +236,11 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | 2.93|
-| 2 | 2.92|
-| 3 | 2.92|
-| 4 | 2.95|
-| 5 | 2.91|
+| 1 | 2.93 |
+| 2 | 2.92 |
+| 3 | 2.92 |
+| 4 | 2.95 |
+| 5 | 2.91 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
@@ -252,11 +252,11 @@ El pH sube progresivamente de ~2.5 a ~8.0 con cada adición de bicarbonato.
 
 | Lectura | pH Sensei |
 |---------|-----------|
-| 1 | 7.34|
-| 2 | 7.33|
-| 3 | 7.32|
-| 4 | 7.36|
-| 5 | 7.34|
+| 1 | 7.34 |
+| 2 | 7.33 |
+| 3 | 7.32 |
+| 4 | 7.36 |
+| 5 | 7.34 |
 
 **Promedio:** _______________ | **Desv. estándar:** _______________ | **Error vs referencia:** _______________
 
