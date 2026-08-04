@@ -8,12 +8,14 @@
 //   5 → Leer humedad de suelo            (sensor OKY3442, pin A4)
 //   6 → pH + Temperatura simultáneos     (para práctica 03)
 //   7 → Calibrar humedad de suelo        (2 puntos, Lagrange — EEPROM)
+//   8 → Leer distancia en tiempo real    (sensor HC-SR04, Trig 8 / Echo 9)
 //   0 → Volver al menú
 
 #include <Arduino.h>
 #include "sensores_analogicos/ph/ph.h"
 #include "sensores_digitales/temperatura_ds18b20/temperatura.h"
 #include "sensores_analogicos/humedad_suelo/humedad.h"
+#include "sensores_digitales/ultrasonico_hcsr04/ultrasonico.h"
 
 // ─── Constantes de calibración buffer ───────────────────────
 const float CAL_PH_4  =  4.01f;
@@ -93,6 +95,7 @@ void imprimirMenu() {
     Serial.println("  5  Humedad de suelo");
     Serial.println("  6  pH + Temperatura simultaneos");
     Serial.println("  7  Calibrar humedad (2 puntos)");
+    Serial.println("  8  Distancia (HC-SR04)");
     Serial.println("  0  Volver al menu");
     Serial.println("-----------------------------------------");
     Serial.print("> ");
@@ -131,6 +134,7 @@ void setup() {
     ph_inicializar();
     temp_inicializar();
     hum_inicializar();
+    ultra_inicializar();
     imprimirMenu();
 }
 
@@ -181,6 +185,7 @@ void loop() {
             Serial.println("  Presiona cualquier tecla cuando este lista.");
             Serial.print("> ");
         }
+        else if (op == 8) { modoActivo = 8; Serial.println(">> Distancia HC-SR04 (escribe 0 para volver)"); }
         else if (op == 0) { imprimirMenu(); }
         else { Serial.println("Opcion no valida."); imprimirMenu(); }
         return;
@@ -371,6 +376,29 @@ void loop() {
             Serial.print("  Humedo="); Serial.println(humedo);
             Serial.println("=========================================");
             humCal_paso = 0; modoActivo = 0; imprimirMenu();
+        }
+        return;
+    }
+
+    // ── Modo 8: distancia HC-SR04 ─────────────────────────────
+    if (modoActivo == 8) {
+        if (Serial.available() > 0 && Serial.peek() == '0') {
+            while (Serial.available() > 0) Serial.read();
+            modoActivo = 0; _buf = ""; imprimirMenu(); return;
+        }
+        float distancia = ultra_leerDistanciaCM();
+        if (Serial.available() > 0 && Serial.peek() == '0') {
+            while (Serial.available() > 0) Serial.read();
+            modoActivo = 0; _buf = ""; imprimirMenu(); return;
+        }
+        if (distancia == ULTRA_ERROR) Serial.println("ERROR: fuera de rango o sin eco.");
+        else { Serial.print("Distancia: "); Serial.print(distancia, 1); Serial.println(" cm"); }
+        for (int i = 0; i < 10; i++) {
+            delay(100);
+            if (Serial.available() > 0 && Serial.peek() == '0') {
+                while (Serial.available() > 0) Serial.read();
+                modoActivo = 0; _buf = ""; imprimirMenu(); return;
+            }
         }
         return;
     }

@@ -211,6 +211,7 @@ Los **sensores digitales** entregan datos ya procesados a través de un protocol
 | --- | --- | --- |
 | 8 | Sensor de Efecto Hall SM351LT (Honeywell) | Señal digital HIGH/LOW |
 | 9 | Sensor de Temperatura DS18B20 (sumergible) | Dato digital por protocolo 1-Wire |
+| 10 | Sensor Ultrasónico HC-SR04 | Pulso digital, distancia proporcional al ancho del pulso |
 
 # Sensores analógicos
 
@@ -1816,5 +1817,162 @@ Maxim Integrated. (s.f.). *DS18B20 Programmable Resolution 1-Wire Digital Thermo
 Miles Burton. (s.f.). *DallasTemperature Arduino Library*. https://github.com/milesburton/Arduino-Temperature-Control-Library
 
 Paul Stoffregen. (s.f.). *OneWire Arduino Library*. https://github.com/PaulStoffregen/OneWire
+
+## 10. Sensor Ultrasónico HC-SR04
+
+Link: https://uelectronics.com/producto/sensor-ultrasonico-hc-sr04/
+
+### ¿Qué es?
+
+El HC-SR04 (UNIT Electronics / Elecfreaks) mide distancia sin contacto, usando ultrasonido. Tiene dos transductores: uno emisor y uno receptor, visibles como dos cilindros metálicos en la tarjeta. El emisor manda un pulso de sonido a 40 kHz (fuera del rango audible humano) y el receptor detecta cuándo regresa ese pulso al rebotar contra un objeto.
+
+El sensor no entrega la distancia directamente como un número: entrega un **pulso digital cuyo ancho de tiempo** es proporcional al tiempo que tardó el sonido en ir y volver. El Arduino mide ese tiempo y calcula la distancia con la fórmula de velocidad del sonido.
+
+**Referencia:**
+- UNIT Electronics. (s.f.). *Sensor Ultrasónico HC-SR04*. https://uelectronics.com/producto/sensor-ultrasonico-hc-sr04/
+- Elecfreaks. (s.f.). *Ultrasonic Ranging Module HC-SR04 Datasheet*.
+
+### Características eléctricas
+
+- **Rango de medición:** 2 cm a 400 cm.
+- **Precisión:** ±3 mm.
+- **Ángulo de medición:** 15°.
+- **Voltaje de alimentación:** 5 V DC.
+- **Corriente de trabajo:** 15 mA.
+- **Frecuencia de trabajo:** 40 kHz.
+- **Señal de disparo (Trig):** pulso TTL de al menos 10 µs.
+- **Señal de eco (Echo):** pulso TTL cuyo ancho es proporcional a la distancia.
+- **Pines:** Vcc, Trig, Echo, GND.
+
+### ¿Cómo funciona?
+
+El proceso de una medición tiene tres pasos:
+
+1. El Arduino manda un pulso HIGH de al menos 10 µs por el pin Trig.
+2. El módulo responde emitiendo un tren de 8 pulsos de ultrasonido a 40 kHz, y al mismo tiempo pone el pin Echo en HIGH.
+3. Cuando el sonido rebota y regresa al receptor del módulo, el pin Echo baja a LOW. El tiempo que el pin Echo estuvo en HIGH es el tiempo que tardó el sonido en ir hasta el objeto y volver.
+
+Con ese tiempo se calcula la distancia usando la velocidad del sonido en el aire (340 m/s):
+
+> distancia = (tiempo_echo × velocidad_sonido) / 2
+>
+
+Se divide entre 2 porque el tiempo medido corresponde al recorrido de ida **y vuelta**, y lo que interesa es la distancia de ida solamente.
+
+**¿De dónde sale la fórmula en centímetros?**
+
+La velocidad del sonido es 340 m/s, que es lo mismo que 0.034 cm/µs (convirtiendo metros a centímetros y segundos a microsegundos). Sustituyendo en la fórmula:
+
+> distancia_cm = (tiempo_echo_us × 0.034) / 2
+>
+
+Simplificando, 0.034 / 2 = 0.017, y dividir entre 0.017 es lo mismo que dividir entre 1/0.017 ≈ 58.8. El propio datasheet del fabricante redondea esto a la fórmula práctica:
+
+> distancia_cm = tiempo_echo_us / 58
+>
+
+Por ejemplo, si el pulso de Echo dura 1160 µs: distancia = 1160 / 58 = 20 cm.
+
+### ¿Se aplica Lagrange?
+
+No. La relación entre el tiempo del pulso y la distancia no es una curva que haya que calibrar con puntos conocidos, es la física directa del sonido (tiempo = distancia / velocidad). La fórmula ya viene dada por el fabricante y no depende de una calibración por sensor, como sí pasa con el pH o la humedad.
+
+### Conexión al Arduino Mega 2560
+
+El HC-SR04 tiene 4 pines, en este orden: Vcc, Trig, Echo, GND.
+
+- **Vcc** → pin **5V** del Arduino Mega.
+- **Trig** → pin **digital 8** del Arduino Mega.
+- **Echo** → pin **digital 9** del Arduino Mega.
+- **GND** → pin **GND** del Arduino Mega.
+
+No necesita resistencias adicionales para esta prueba en protoboard.
+
+```
+    5V (Arduino) ────────────► Vcc
+    Pin digital 8 ────────────► Trig
+    Pin digital 9 ◄──────────── Echo
+    GND (Arduino) ────────────► GND
+```
+
+### Código
+
+El proyecto implementa este sensor de forma modular en `src/sensores_digitales/ultrasonico_hcsr04/ultrasonico.h` y `ultrasonico.cpp`. La medición se activa desde el menú principal del kit (opción 8).
+
+Resumen de las funciones principales:
+
+```cpp
+// ultrasonico.h
+const int ULTRA_PIN_TRIG = 8;
+const int ULTRA_PIN_ECHO = 9;
+const unsigned long ULTRA_TIMEOUT_US = 30000; // timeout del pulseIn (~30 ms)
+const float ULTRA_ERROR = -1.0;               // sin eco o fuera de rango
+
+void  ultra_inicializar();
+float ultra_leerDistanciaCM();
+```
+
+Programa de referencia, equivalente al que ya está modularizado:
+
+```cpp
+// Archivo: src/main.cpp
+// Sensor Ultrasónico HC-SR04
+//
+// Conexiones:
+//   Vcc  → 5V del Arduino Mega
+//   Trig → pin digital 8 del Arduino Mega
+//   Echo → pin digital 9 del Arduino Mega
+//   GND  → GND del Arduino Mega
+
+#include<Arduino.h>
+
+const int PIN_TRIG = 8;
+const int PIN_ECHO = 9;
+const unsigned long TIMEOUT_US = 30000; // cubre hasta 400 cm con margen
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_TRIG, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+  digitalWrite(PIN_TRIG, LOW);
+}
+
+void loop() {
+  // Pulso de disparo de 10 us
+  digitalWrite(PIN_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(PIN_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(PIN_TRIG, LOW);
+
+  // Mide el ancho del pulso de Echo (0 si no hay respuesta dentro del timeout)
+  unsigned long duracion = pulseIn(PIN_ECHO, HIGH, TIMEOUT_US);
+
+  if (duracion == 0) {
+    Serial.println("Sin eco (fuera de rango o sensor desconectado)");
+  } else {
+    float distancia = duracion / 58.0; // formula del datasheet: us / 58 = cm
+    Serial.print("Distancia: ");
+    Serial.print(distancia, 1);
+    Serial.println(" cm");
+  }
+
+  delay(200); // el datasheet recomienda un ciclo de medicion de al menos 60 ms
+}
+```
+
+### Notas de la hoja de datos
+
+- El fabricante recomienda un ciclo de medición de al menos 60 ms entre lecturas, para que el pulso de un disparo no interfiera con el eco del siguiente.
+- Al probar objetos, el área reflectante recomendada es de al menos 0.5 m² y lo más plana posible; superficies pequeñas o irregulares afectan la lectura.
+- El fabricante recomienda no conectar el módulo directamente a la alimentación sin antes tener GND conectado, para no afectar su funcionamiento normal.
+
+### Referencias
+
+Elecfreaks. (s.f.). *Ultrasonic Ranging Module HC-SR04 — User Guide*. (Datasheet incluido en `src/sensores_digitales/ultrasonico_hcsr04/ULTRASONICO_datasheet.txt`).
+
+UNIT Electronics. (s.f.). *Sensor Ultrasónico HC-SR04*. https://uelectronics.com/producto/sensor-ultrasonico-hc-sr04/
+
+Arduino. (s.f.). *pulseIn() - Arduino Reference*. https://docs.arduino.cc/language-reference/en/functions/advanced-io/pulseIn/
 
 UNIT Electronics. (s.f.). *DS18B20 Sensor de Temperatura Digital de Acero Inoxidable Sumergible*. SKU: AR0135. https://uelectronics.com/producto/ds18b20-sensor-de-temperatura-digital-de-acero-inoxidable-sumergible/
