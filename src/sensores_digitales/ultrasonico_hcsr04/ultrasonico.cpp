@@ -1,5 +1,16 @@
 #include "ultrasonico.h"
 
+// Definición de los pines (declarados como extern en el .h)
+int ULTRA_PIN_TRIG = 8;
+int ULTRA_PIN_ECHO = 9;
+
+// Redirige el sensor a otro par de pines Trig/Echo y los reconfigura.
+void ultra_configurarPines(int pinTrig, int pinEcho) {
+    ULTRA_PIN_TRIG = pinTrig;
+    ULTRA_PIN_ECHO = pinEcho;
+    ultra_inicializar();
+}
+
 // Configura los pines Trig (salida) y Echo (entrada).
 // Debe llamarse una vez en setup().
 void ultra_inicializar() {

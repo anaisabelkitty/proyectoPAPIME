@@ -29,3 +29,8 @@ float temp_leerCelsius() {
     // getTempCByIndex devuelve DEVICE_DISCONNECTED_C (-127) si hay error
     return temperatura;
 }
+
+// Cambia el pin del bus 1-Wire sin reconstruir los objetos OneWire/DallasTemperature.
+void temp_configurarPin(int pin) {
+    _onewire.begin(pin);
+}

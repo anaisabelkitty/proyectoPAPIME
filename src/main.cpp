@@ -9,6 +9,7 @@
 //   6 → pH + Temperatura simultáneos     (para práctica 03)
 //   7 → Calibrar humedad de suelo        (2 puntos, Lagrange — EEPROM)
 //   8 → Leer distancia en tiempo real    (sensor HC-SR04, Trig 8 / Echo 9)
+//   9 → Escanear los 4 conectores        (identificación automática por código)
 //   0 → Volver al menú
 
 #include <Arduino.h>
@@ -16,6 +17,29 @@
 #include "sensores_digitales/temperatura_ds18b20/temperatura.h"
 #include "sensores_analogicos/humedad_suelo/humedad.h"
 #include "sensores_digitales/ultrasonico_hcsr04/ultrasonico.h"
+
+// ─── Pines de los 4 conectores RJ45 (identificación + señal) ───
+// Ver docs/diseno_electronico.md, sección "Pines del Mega dedicados a esto".
+struct Conector {
+    int id0, id1, id2, id3; // pines de identificación (INPUT_PULLUP)
+    int senal1;             // pin de señal 1 (Ax)
+    int senal2;             // pin de señal 2 (Ax); hoy solo la usa el HC-SR04 como Echo
+};
+
+const int NUM_CONECTORES = 4;
+Conector conectores[NUM_CONECTORES] = {
+    {22, 23, 24, 25, A0, A1},  // Conector 1
+    {26, 27, 28, 29, A2, A3},  // Conector 2
+    {30, 31, 32, 33, A4, A5},  // Conector 3
+    {34, 35, 36, 37, A6, A7},  // Conector 4
+};
+
+// Códigos de identificación (ver tabla en docs/diseno_electronico.md)
+const int COD_VACIO       = 0; // también es el código de "Voltaje AR2657", sin implementar todavía
+const int COD_PH          = 2;
+const int COD_HUMEDAD     = 4;
+const int COD_TEMPERATURA = 8;
+const int COD_ULTRASONICO = 9;
 
 // ─── Constantes de calibración buffer ───────────────────────
 const float CAL_PH_4  =  4.01f;
@@ -35,6 +59,60 @@ int   cal_paso   = 0;
 // ─── Estado calibración de humedad ───────────────────────────
 int humCal_paso  = 0;
 int humCal_seco  = 0;
+
+// ─── Identificación por código binario (pull-up interno) ──────
+void configurarPinesID(Conector &c) {
+    pinMode(c.id0, INPUT_PULLUP);
+    pinMode(c.id1, INPUT_PULLUP);
+    pinMode(c.id2, INPUT_PULLUP);
+    pinMode(c.id3, INPUT_PULLUP);
+}
+
+int leerCodigoID(Conector &c) {
+    int b0 = !digitalRead(c.id0);
+    int b1 = !digitalRead(c.id1);
+    int b2 = !digitalRead(c.id2);
+    int b3 = !digitalRead(c.id3);
+    return (b3 << 3) | (b2 << 2) | (b1 << 1) | b0;
+}
+
+// Lee el sensor detectado en un conector y lo imprime.
+void leerYMostrarConector(int numero, Conector &c) {
+    int codigo = leerCodigoID(c);
+
+    Serial.print("  Conector "); Serial.print(numero);
+    Serial.print(" (codigo "); Serial.print(codigo); Serial.print("): ");
+
+    if (codigo == COD_PH) {
+        int   adc     = analogRead(c.senal1);
+        float voltaje = (adc * PH_VREF) / PH_ADC_MAX;
+        float pH      = ph_calcularPH(voltaje);
+        Serial.print("pH = "); Serial.println(pH, 2);
+    }
+    else if (codigo == COD_HUMEDAD) {
+        int   adc     = analogRead(c.senal1);
+        float humedad = hum_calcularHumedad(adc);
+        Serial.print("Humedad = "); Serial.print(humedad, 1); Serial.println(" %");
+    }
+    else if (codigo == COD_TEMPERATURA) {
+        temp_configurarPin(c.senal1);
+        float t = temp_leerCelsius();
+        if (t == TEMP_ERROR) Serial.println("ERROR DS18B20");
+        else { Serial.print("Temperatura = "); Serial.print(t, 2); Serial.println(" C"); }
+    }
+    else if (codigo == COD_ULTRASONICO) {
+        ultra_configurarPines(c.senal1, c.senal2);
+        float d = ultra_leerDistanciaCM();
+        if (d == ULTRA_ERROR) Serial.println("ERROR (sin eco o fuera de rango)");
+        else { Serial.print("Distancia = "); Serial.print(d, 1); Serial.println(" cm"); }
+    }
+    else if (codigo == COD_VACIO) {
+        Serial.println("vacio");
+    }
+    else {
+        Serial.println("codigo no reconocido");
+    }
+}
 
 // ─── Vaciar buffer serial ─────────────────────────────────────
 void vaciarSerial() {
@@ -96,6 +174,7 @@ void imprimirMenu() {
     Serial.println("  6  pH + Temperatura simultaneos");
     Serial.println("  7  Calibrar humedad (2 puntos)");
     Serial.println("  8  Distancia (HC-SR04)");
+    Serial.println("  9  Escanear los 4 conectores (identificacion)");
     Serial.println("  0  Volver al menu");
     Serial.println("-----------------------------------------");
     Serial.print("> ");
@@ -135,6 +214,9 @@ void setup() {
     temp_inicializar();
     hum_inicializar();
     ultra_inicializar();
+    for (int i = 0; i < NUM_CONECTORES; i++) {
+        configurarPinesID(conectores[i]);
+    }
     imprimirMenu();
 }
 
@@ -186,6 +268,7 @@ void loop() {
             Serial.print("> ");
         }
         else if (op == 8) { modoActivo = 8; Serial.println(">> Distancia HC-SR04 (escribe 0 para volver)"); }
+        else if (op == 9) { modoActivo = 9; Serial.println(">> Escaneo de conectores (escribe 0 para volver)"); }
         else if (op == 0) { imprimirMenu(); }
         else { Serial.println("Opcion no valida."); imprimirMenu(); }
         return;
@@ -393,6 +476,32 @@ void loop() {
         }
         if (distancia == ULTRA_ERROR) Serial.println("ERROR: fuera de rango o sin eco.");
         else { Serial.print("Distancia: "); Serial.print(distancia, 1); Serial.println(" cm"); }
+        for (int i = 0; i < 10; i++) {
+            delay(100);
+            if (Serial.available() > 0 && Serial.peek() == '0') {
+                while (Serial.available() > 0) Serial.read();
+                modoActivo = 0; _buf = ""; imprimirMenu(); return;
+            }
+        }
+        return;
+    }
+
+    // ── Modo 9: escaneo de los 4 conectores ───────────────────
+    if (modoActivo == 9) {
+        if (Serial.available() > 0 && Serial.peek() == '0') {
+            while (Serial.available() > 0) Serial.read();
+            modoActivo = 0; _buf = ""; imprimirMenu(); return;
+        }
+
+        Serial.println("-----------------------------------------");
+        for (int i = 0; i < NUM_CONECTORES; i++) {
+            leerYMostrarConector(i + 1, conectores[i]);
+            if (Serial.available() > 0 && Serial.peek() == '0') {
+                while (Serial.available() > 0) Serial.read();
+                modoActivo = 0; _buf = ""; imprimirMenu(); return;
+            }
+        }
+
         for (int i = 0; i < 10; i++) {
             delay(100);
             if (Serial.available() > 0 && Serial.peek() == '0') {

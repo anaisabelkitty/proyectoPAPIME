@@ -40,4 +40,9 @@ const float TEMP_ERROR = DEVICE_DISCONNECTED_C;  // -127.00 °C
 void   temp_inicializar();
 float  temp_leerCelsius();
 
+// Redirige el bus 1-Wire a otro pin en tiempo de ejecución.
+// Se usa cuando el sensor no está en su pin fijo (TEMP_PIN_SENSOR),
+// por ejemplo al leerlo a través de uno de los 4 conectores RJ45.
+void   temp_configurarPin(int pin);
+
 #endif

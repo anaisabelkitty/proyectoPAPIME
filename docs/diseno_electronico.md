@@ -30,7 +30,7 @@ El kit también debe poder funcionar conectado a corriente eléctrica al mismo t
 
 ## Display LCD 20×4
 
-El display es un **LCD 20×4, fondo azul con letras amarillas**, controlado por un módulo adaptador I2C (chip **PCF8574**). Ese adaptador es justamente lo que reduce la comunicación con el LCD a **2 pines de datos**: SDA y SCL, en vez de los 6 a 11 pines que necesitaría un LCD conectado en modo paralelo directo.
+El display es un **LCD 20×4, fondo azul**, controlado por un módulo adaptador I2C (chip **PCF8574**). Ese adaptador es justamente lo que reduce la comunicación con el LCD a **2 pines de datos**: SDA y SCL, en vez de los 6 a 11 pines que necesitaría un LCD conectado en modo paralelo directo.
 
 ### Conexión al Arduino Mega 2560
 
@@ -41,8 +41,8 @@ El módulo adaptador I2C tiene 4 terminales:
 - **SDA** (datos) → pin **20** del Mega (SDA en el Mega 2560).
 - **SCL** (reloj) → pin **21** del Mega (SCL en el Mega 2560).
 
-```
-LCD 20x4 + PCF8574          Arduino Mega 2560
+``` 
+LCD 20x4 + PCF8574          Arduino  Mega 2560
       VCC ───────────────────► 5V
       GND ───────────────────► GND
       SDA ───────────────────► pin 20 (SDA)
@@ -147,6 +147,7 @@ El código resultante (0 a 15) se compara contra una tabla en el firmware para s
 | Pulso OKY3471-5 | 0 | 1 | 1 | 0 | 6 |
 | Hall SM351LT | 1 | 1 | 1 | 0 | 7 |
 | Temperatura DS18B20 | 0 | 0 | 0 | 1 | 8 |
+| Ultrasónico HC-SR04 | 1 | 0 | 0 | 1 | 9 |
 
 Faltan por asignar los sensores restantes hasta completar la lista final (ver pendientes: aún no está confirmado si el proyecto cierra en 12 o en 16 sensores).
 
@@ -154,14 +155,16 @@ Faltan por asignar los sensores restantes hasta completar la lista final (ver pe
 
 Cada conector necesita 4 pines digitales solo para ID. Con 4 conectores son 16 pines digitales dedicados a identificación, más los pines de señal. El Mega tiene 54 pines digitales en total, así que esto no es una limitación — el límite real está en los 8 pines del cable Cat5, no en el Mega.
 
-Asignación fija de pines de ID por conector (propuesta, se confirma al armar el primer módulo):
+Asignación fija de pines por conector. Señal 1 y Señal 2 son las dos pines Ax (decisión final: aunque Señal 2 hoy solo la use el HC-SR04, se deja como Ax para no tener que recablear si algún sensor futuro la necesita como analógica). Los 4 pines de ID de cada conector son digitales normales:
 
-| Conector | ID0 | ID1 | ID2 | ID3 | Señal 1 | Señal 2 |
+| Conector | ID0 | ID1 | ID2 | ID3 | Señal 1 (Ax) | Señal 2 (Ax) |
 |---|---|---|---|---|---|---|
-| Conector 1 | 22 | 23 | 24 | 25 | A0 | 26 |
-| Conector 2 | 27 | 28 | 29 | 30 | A1 | 31 |
-| Conector 3 | 32 | 33 | 34 | 35 | A2 | 36 |
-| Conector 4 | 37 | 38 | 39 | 40 | A3 | 41 |
+| Conector 1 | 22 | 23 | 24 | 25 | A0 | A1 |
+| Conector 2 | 26 | 27 | 28 | 29 | A2 | A3 |
+| Conector 3 | 30 | 31 | 32 | 33 | A4 | A5 |
+| Conector 4 | 34 | 35 | 36 | 37 | A6 | A7 |
+
+Con esto se usan 8 de los 16 pines Ax del Mega (quedan A8-A15 libres), y los pines de ID quedan consecutivos del 22 al 37 sin huecos.
 
 (Pin 7 sigue libre para el DS18B20 si se prueba suelto sin RJ45, y el pin 22 en la tabla anterior de `sensores.md` para el sensor Hall queda liberado, porque con este sistema el sensor Hall ya no tiene un pin fijo, se detecta por su código.)
 
@@ -255,54 +258,102 @@ Quedan los 8 pines ocupados, sin pines libres de reserva. Si se llegara a necesi
 
 ---
 
-## Guía de ensamblaje físico del primer módulo de prueba
+## Prueba de identificación con los sensores ya programados
 
-Procedimiento para armar y validar un módulo sensor completo (ejemplo: humedad de suelo OKY3442) junto con su conector correspondiente en el núcleo.
+Hoy en `main.cpp` ya están programados 4 sensores: **pH (PH-4502C)**, **humedad de suelo (OKY3442)**, **temperatura (DS18B20)** y **ultrasónico (HC-SR04)**. Sirven como el primer caso real para probar si el sistema de identificación funciona.
 
-### Materiales
+**Ya está implementado:** el `main.cpp` actual tiene la **opción 9 del menú**, que escanea los 4 conectores, lee el código de identificación de cada uno y llama a la función correcta del sensor detectado (`ph_calcularPH()`, `hum_calcularHumedad()`, `temp_leerCelsius()` o `ultra_leerDistanciaCM()`, según el código). Ya no es solo el circuito de identificación por separado — la opción 9 muestra el valor real de cada sensor, sin importar en cuál de los 4 conectores esté enchufado. Las opciones 1, 2, 5 y 8 del menú siguen existiendo aparte, y leen cada sensor por su pin fijo de protoboard (sin pasar por RJ45), tal como está documentado en `sensores.md` — sirven para probar un sensor suelto sin armar todo el sistema de conectores.
 
-- 1 protoboard para el núcleo.
-- 1 protoboard chica para el módulo sensor.
-- 2 conectores RJ45 hembra.
-- 1 tramo de cable Cat5 con RJ45 macho ponchado en ambas puntas (T568B, directo).
-- Resistencias de 1 kΩ (hasta 4 por módulo, según el código).
-- Cables jumper.
-- El sensor a probar.
+### Códigos y conexión de cada uno de los 4 sensores
 
-### Paso 1 — Lado del núcleo
+**pH PH-4502C — código 2 (ID0=0, ID1=1, ID2=0, ID3=0)**
 
-1. Montar el RJ45 hembra del núcleo en la protoboard grande.
-2. Conectar con jumpers:
-   - VCC del RJ45 → riel de 5V (conectado al pin 5V del Mega).
-   - GND del RJ45 → riel de GND (conectado al pin GND del Mega).
-   - 4 pines de ID del RJ45 → 4 pines digitales del Mega (por ejemplo 22, 23, 24, 25 para el conector 1), sin resistencia de por medio.
-   - Pin de señal 1 del RJ45 → un pin analógico del Mega (por ejemplo A0).
-   - Pin de señal 2 del RJ45 → puede dejarse sin conectar hasta que se programe el HC-SR04.
-3. En el código, configurar los 4 pines de ID como `INPUT_PULLUP` en `setup()`.
+- Conexión del sensor (sin cambios respecto a `sensores.md`): VCC → 5V, GND → GND, Po → pin de señal del conector.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en la línea ID1. Las líneas ID0, ID2, ID3 sin conectar.
+- Señal 2 del conector: no se usa (el pH solo necesita una línea de señal).
 
-Este lado no se vuelve a modificar para cada sensor nuevo.
+**Humedad de suelo OKY3442 — código 4 (ID0=0, ID1=0, ID2=1, ID3=0)**
 
-### Paso 2 — Lado del módulo sensor
+- Conexión del sensor: VCC → 5V, GND → GND, A0 (salida analógica) → pin de señal del conector.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en la línea ID2. Las demás sin conectar.
+- Señal 2: no se usa.
 
-1. Montar el RJ45 hembra del módulo en la protoboard chica.
-2. Conectar el sensor en la misma protoboard (VCC, GND, salida de señal).
-3. Conectar con jumpers:
-   - VCC del RJ45 → VCC del sensor.
-   - GND del RJ45 → GND del sensor.
-   - Pin de señal del RJ45 → salida del sensor.
-4. Fijar el código de identificación según la tabla: los bits en 0 llevan una resistencia de 1 kΩ hacia GND; los bits en 1 se dejan sin conectar.
+**Temperatura DS18B20 — código 8 (ID0=0, ID1=0, ID2=0, ID3=1)**
 
-### Paso 3 — Unir con el cable
+- Conexión del sensor: VCC → 5V, GND → GND, DQ → pin de señal del conector, con la resistencia de pull-up de 4.7 kΩ entre DQ y 5V (esta resistencia va aparte, es del protocolo 1-Wire, no tiene que ver con la identificación).
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en la línea ID3. Las demás sin conectar.
+- Señal 2: no se usa.
 
-1. Conectar el cable Cat5 entre el RJ45 del núcleo y el RJ45 del módulo.
-2. Correr un código de prueba que solo lea los 4 pines de ID y muestre el código armado (0 a 15) por el monitor serial, antes de meter la lógica completa del sensor.
+**Ultrasónico HC-SR04 — código 9 (ID0=1, ID1=0, ID2=0, ID3=1)**
 
-### Paso 4 — Validar
+- Conexión del sensor: Vcc → 5V, GND → GND, Trig → pin de **Señal 1** del conector, Echo → pin de **Señal 2** del conector. Este es el único de los 4 que sí usa las dos líneas de señal.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND en las líneas ID0 e ID3. Las líneas ID1 e ID2 sin conectar.
 
-- Si el código impreso coincide con el fijado en las resistencias, la identificación funciona.
-- Si no coincide, revisar: resistencias mal conectadas, cable mal ponchado, o pines de ID sin configurar como `INPUT_PULLUP`.
+### Cómo probar que la identificación funciona con estos 4
 
-Una vez validado, se repite el mismo procedimiento para cada sensor nuevo.
+1. Armar cada uno de los 4 módulos con su RJ45 y sus resistencias de código, según la tabla de arriba (ver también la lista de materiales completa más abajo).
+2. Subir el `main.cpp` actual al Mega (ya trae la opción 9 lista, no hace falta ningún sketch aparte).
+3. Conectar el módulo de pH al conector 1, entrar al menú y escribir `9`. El monitor serial debe mostrar algo como: `Conector 1 (codigo 2): pH = 7.02`.
+4. Sin mover ninguna resistencia, desconectar el módulo de pH del conector 1 y conectarlo al conector 3 (o cualquier otro). Al volver a escanear (opción 9), debe seguir mostrando el código `2` y el valor de pH, ahora bajo "Conector 3". Esto confirma que la identificación no depende de en cuál de los 4 conectores esté el sensor.
+5. Repetir con los otros 3 módulos (humedad = código 4, temperatura = código 8, ultrasónico = código 9), probando cada uno en al menos dos conectores distintos.
+6. Para probar los 4 al mismo tiempo: conectar los 4 módulos, uno por conector, y correr la opción 9. Debe imprimir las 4 filas seguidas, cada una con su sensor y su valor correcto.
+7. Si algún conector no coincide con lo esperado, revisar primero ese conector específico: resistencias de ID mal conectadas en el módulo, cable Cat5 mal ponchado, o el cableado de ese conector en el núcleo.
+
+---
+
+## Lista de materiales para armar y probar los 4 sensores ya programados
+
+Todo lo necesario para conectar pH, humedad, temperatura y ultrasónico al sistema de identificación y probarlos con la opción 9 del menú.
+
+### Núcleo (una sola vez, sirve para los 4 sensores)
+
+| Material | Cantidad |
+|---|---|
+| Arduino Mega 2560 | 1 |
+| Protoboard grande (para el núcleo) | 1 |
+| Conector RJ45 hembra | 4 |
+| Cable jumper macho-macho | ~30 |
+| Cable jumper macho-hembra | ~10 |
+
+### Por cada módulo sensor (× 4 sensores)
+
+| Material | Cantidad por módulo | Total (4 módulos) |
+|---|---|---|
+| Protoboard chica | 1 | 4 |
+| Conector RJ45 hembra | 1 | 4 |
+| Cable Cat5 con RJ45 macho ponchado en ambas puntas (T568B, directo) | 1 | 4 |
+
+### Resistencias para el código de identificación (1 kΩ, protección)
+
+| Sensor | Código | Bits en 0 (necesitan resistencia) | Resistencias de 1 kΩ |
+|---|---|---|---|
+| pH PH-4502C | 2 | ID1 | 1 |
+| Humedad OKY3442 | 4 | ID2 | 1 |
+| Temperatura DS18B20 | 8 | ID3 | 1 |
+| Ultrasónico HC-SR04 | 9 | ID0, ID3 | 2 |
+
+**Total: 5 resistencias de 1 kΩ** (o cualquier valor disponible entre 1 kΩ y 10 kΩ, no es crítico — ver la explicación de por qué en la sección de identificación).
+
+### Resistencia aparte, no relacionada con el código de identificación
+
+| Material | Cantidad | Para qué |
+|---|---|---|
+| Resistencia de 4.7 kΩ | 1 | Pull-up del bus 1-Wire del DS18B20 (obligatoria para que el sensor funcione; va entre DQ y 5V, no tiene relación con el circuito de ID) |
+
+### Los 4 sensores
+
+- 1× PH-4502C con electrodo E201C-BNC
+- 1× OKY3442 (humedad de suelo)
+- 1× DS18B20 sumergible
+- 1× HC-SR04
+
+### Herramienta
+
+- Ponchadora de RJ45 (crimping tool), si los 4 cables Cat5 no vienen ya armados.
+- Pelacables.
+- Multímetro (para verificar continuidad de las resistencias a GND si algún código no coincide al probar).
+
+No se necesita batería ni fuente externa para esta prueba: el Mega se alimenta por USB desde la computadora mientras se usa el monitor serial.
 
 ---
 
@@ -318,14 +369,13 @@ Cada sensor se documenta en una hoja de esquemático separada dentro del mismo p
 
 ## Plan de trabajo
 
-1. Confirmar la lista final de sensores (12 o 16) y completar la tabla de códigos de identificación.
-2. Armar el circuito de identificación del primer sensor (humedad de suelo) en protoboard, con su conector RJ45, siguiendo la guía de ensamblaje.
-3. Modificar el código (`humedad.cpp`/`humedad.h` y `main.cpp`) para que el Mega lea el código de 4 bits y detecte automáticamente el sensor conectado, en vez de usar un pin fijo.
-4. Repetir con el sensor de pH.
-5. Capturar en KiCad los dos circuitos ya probados, cada uno en su propia hoja.
+1. ~~Modificar el código para que el Mega lea el código de 4 bits y detecte automáticamente el sensor conectado.~~ Hecho: opción 9 del menú, cubre pH, humedad, temperatura y ultrasónico.
+2. Armar físicamente los 4 módulos (pH, humedad, temperatura, ultrasónico) con su RJ45 y sus resistencias de código, siguiendo la lista de materiales y la guía de esta misma sección.
+3. Probar los 4 conectados al mismo tiempo con la opción 9, y confirmar que cada uno se detecta igual sin importar en qué conector esté.
+4. Confirmar la lista final de sensores (12 o 16) y completar la tabla de códigos de identificación con los que falten.
+5. Capturar en KiCad los circuitos ya probados físicamente, cada uno en su propia hoja.
 6. Armar en KiCad la hoja principal (Mega, ESP32, LCD, alimentación) y resolver ahí la alimentación dual (batería + corriente eléctrica).
-7. Continuar con el resto de los sensores, uno por uno.
-8. Programar el HC-SR04 cuando le toque su turno, usando el segundo pin de señal ya reservado en el presupuesto de pines.
+7. Continuar con el resto de los sensores, uno por uno, repitiendo el mismo procedimiento.
 
 ---
 

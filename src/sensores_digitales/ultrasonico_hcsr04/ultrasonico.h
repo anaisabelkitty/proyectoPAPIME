@@ -21,8 +21,11 @@
 // Rango del sensor (según datasheet):
 //   2 cm a 400 cm, ángulo de medición de 15°.
 
-const int ULTRA_PIN_TRIG = 8;   // Pin digital de salida (dispara el pulso)
-const int ULTRA_PIN_ECHO = 9;   // Pin digital de entrada (mide el eco)
+// Pines por defecto (prueba en protoboard con el sensor en su propio conector fijo).
+// No son const porque ultra_configurarPines() los puede redirigir en tiempo de
+// ejecución, por ejemplo al leer el sensor a través de uno de los 4 conectores RJ45.
+extern int ULTRA_PIN_TRIG;   // Pin digital de salida (dispara el pulso)
+extern int ULTRA_PIN_ECHO;   // Pin digital de entrada (mide el eco)
 
 const unsigned long ULTRA_PULSO_TRIG_US = 10;      // Duración del pulso de disparo
 const unsigned long ULTRA_TIMEOUT_US    = 30000;   // Máximo tiempo de espera del eco (~30 ms, cubre 400 cm con margen)
@@ -36,5 +39,6 @@ const float ULTRA_ERROR = -1.0;
 // Funciones
 void  ultra_inicializar();
 float ultra_leerDistanciaCM();
+void  ultra_configurarPines(int pinTrig, int pinEcho);
 
 #endif
