@@ -107,14 +107,14 @@ pinMode(pinID2, INPUT_PULLUP);
 pinMode(pinID3, INPUT_PULLUP);
 ```
 
-Sin nada conectado, el pin lee HIGH por defecto (bit en 1).
+Sin nada conectado, el pin lee HIGH por defecto, que corresponde a **bit en 0** en la tabla de códigos.
 
 **En cada módulo sensor:**
-- Bit en 1 (HIGH): la línea de ID correspondiente no se conecta a nada dentro del módulo.
-- Bit en 0 (LOW): la línea de ID correspondiente se conecta a GND a través de una resistencia de 1 kΩ (la resistencia es protección, para no hacer un corto directo).
+- Bit en 0 (tabla) = eléctricamente HIGH: la línea de ID correspondiente no se conecta a nada dentro del módulo.
+- Bit en 1 (tabla) = eléctricamente LOW: la línea de ID correspondiente se conecta a GND a través de una resistencia de 1 kΩ (la resistencia es protección, para no hacer un corto directo).
 
 ```
-Bit en 0 (LOW):                    Bit en 1 (HIGH):
+Bit en 1 (tabla) = LOW:            Bit en 0 (tabla) = HIGH:
   Línea de ID ──[1kΩ]── GND         Línea de ID ── (no conectada)
 ```
 
@@ -155,9 +155,11 @@ Faltan por asignar los sensores restantes hasta completar la lista final (ver pe
 
 Cada conector necesita 4 pines digitales solo para ID. Con 4 conectores son 16 pines digitales dedicados a identificación, más los pines de señal. El Mega tiene 54 pines digitales en total, así que esto no es una limitación — el límite real está en los 8 pines del cable Cat5, no en el Mega.
 
-Asignación fija de pines por conector. Señal 1 y Señal 2 son las dos pines Ax (decisión final: aunque Señal 2 hoy solo la use el HC-SR04, se deja como Ax para no tener que recablear si algún sensor futuro la necesita como analógica). Los 4 pines de ID de cada conector son digitales normales:
+Asignación fija de pines por conector. Señal 1 y Señal 2 son las dos pines Ax (decisión final: aunque Señal 2 hoy solo la use el HC-SR04, se deja como Ax para no tener que recablear si algún sensor futuro la necesita como analógica).
 
-| Conector | ID0 | ID1 | ID2 | ID3 | Señal 1 (Ax) | Señal 2 (Ax) |
+**Convención de orden de los pines de ID (fija, no cambiar):** en el RJ45, de izquierda a derecha, va **ID3, ID2, ID1, ID0** — así el binario se lee directo en el conector, en el mismo orden en que se escribe (bit de mayor valor primero), sin tener que invertir nada mentalmente:
+
+| Conector | ID3 (RJ45 pin 3) | ID2 (RJ45 pin 4) | ID1 (RJ45 pin 5) | ID0 (RJ45 pin 6) | Señal 1 (Ax) | Señal 2 (Ax) |
 |---|---|---|---|---|---|---|
 | Conector 1 | 22 | 23 | 24 | 25 | A0 | A1 |
 | Conector 2 | 26 | 27 | 28 | 29 | A2 | A3 |
@@ -174,10 +176,10 @@ Esto es lo que se hace hoy, con el conector 1 como ejemplo, para dejar la identi
 
 **1. Preparar el lado del núcleo.**
 En la protoboard del núcleo, tomar 4 jumpers y conectar el RJ45 hembra del conector 1 así:
-- Pin 3 del RJ45 (ID0) → pin digital 22 del Mega.
-- Pin 4 del RJ45 (ID1) → pin digital 23 del Mega.
-- Pin 5 del RJ45 (ID2) → pin digital 24 del Mega.
-- Pin 6 del RJ45 (ID3) → pin digital 25 del Mega.
+- Pin 3 del RJ45 (ID3) → pin digital 22 del Mega.
+- Pin 4 del RJ45 (ID2) → pin digital 23 del Mega.
+- Pin 5 del RJ45 (ID1) → pin digital 24 del Mega.
+- Pin 6 del RJ45 (ID0) → pin digital 25 del Mega.
 
 No poner ninguna resistencia en este lado. El pull-up lo activa el código, no el cableado.
 
@@ -186,24 +188,24 @@ No poner ninguna resistencia en este lado. El pull-up lo activa el código, no e
 ```cpp
 #include <Arduino.h>
 
-const int PIN_ID0 = 22;
-const int PIN_ID1 = 23;
-const int PIN_ID2 = 24;
-const int PIN_ID3 = 25;
+const int PIN_ID3 = 22;
+const int PIN_ID2 = 23;
+const int PIN_ID1 = 24;
+const int PIN_ID0 = 25;
 
 void setup() {
     Serial.begin(9600);
-    pinMode(PIN_ID0, INPUT_PULLUP);
-    pinMode(PIN_ID1, INPUT_PULLUP);
-    pinMode(PIN_ID2, INPUT_PULLUP);
     pinMode(PIN_ID3, INPUT_PULLUP);
+    pinMode(PIN_ID2, INPUT_PULLUP);
+    pinMode(PIN_ID1, INPUT_PULLUP);
+    pinMode(PIN_ID0, INPUT_PULLUP);
 }
 
 void loop() {
-    int b0 = !digitalRead(PIN_ID0);
-    int b1 = !digitalRead(PIN_ID1);
-    int b2 = !digitalRead(PIN_ID2);
     int b3 = !digitalRead(PIN_ID3);
+    int b2 = !digitalRead(PIN_ID2);
+    int b1 = !digitalRead(PIN_ID1);
+    int b0 = !digitalRead(PIN_ID0);
     int codigo = (b3 << 3) | (b2 << 2) | (b1 << 1) | b0;
 
     Serial.print("Codigo ID: ");
@@ -215,13 +217,13 @@ void loop() {
 Con nada conectado en el otro extremo del cable, este sketch debe imprimir `0` de forma constante (los 4 bits en HIGH por el pull-up, que se invierten a 0 en el código). Este es el primer punto de control: si no imprime 0 con el conector vacío, hay un problema de cableado antes de seguir.
 
 **3. Armar el lado del módulo con un código de prueba, por ejemplo el código 5 (binario 0101).**
-Según la tabla de códigos, el código 5 corresponde a: ID0=1, ID1=0, ID2=1, ID3=0. Recordando la convención (bit en 0 = se conecta a GND con resistencia; bit en 1 = no se conecta a nada):
-- ID0 (bit 1): no conectar.
-- ID1 (bit 0): conectar a GND con una resistencia de 1 kΩ.
-- ID2 (bit 1): no conectar.
+Según la tabla de códigos, el código 5 corresponde a: ID3=0, ID2=1, ID1=0, ID0=1. Recordando la convención (bit en 0 = se conecta a GND con resistencia; bit en 1 = no se conecta a nada):
 - ID3 (bit 0): conectar a GND con una resistencia de 1 kΩ.
+- ID2 (bit 1): no conectar.
+- ID1 (bit 0): conectar a GND con una resistencia de 1 kΩ.
+- ID0 (bit 1): no conectar.
 
-En la protoboard del módulo, el RJ45 hembra del módulo lleva 2 resistencias de 1 kΩ (en los pines 4 y 6, que son ID1 e ID3) hacia el riel de GND del módulo. Los pines 3 y 5 (ID0 e ID2) se dejan sin ningún cable.
+En la protoboard del módulo, el RJ45 hembra del módulo lleva 2 resistencias de 1 kΩ (en los pines 3 y 5, que son ID3 e ID1) hacia el riel de GND del módulo. Los pines 4 y 6 (ID2 e ID0) se dejan sin ningún cable.
 
 **4. Conectar el cable Cat5 entre los dos RJ45 y revisar el monitor serial.**
 Debe imprimir `5`. Si imprime otro número, revisar primero que las resistencias estén realmente conectadas a GND (medir continuidad con multímetro si hay duda) y que el cable esté ponchado igual en ambas puntas (T568B, no cruzado).
@@ -247,10 +249,10 @@ Se descartó por completo el divisor de voltaje simple original (una resistencia
 |---|---|
 | 1 | VCC |
 | 2 | GND |
-| 3 | ID0 |
-| 4 | ID1 |
-| 5 | ID2 |
-| 6 | ID3 |
+| 3 | ID3 |
+| 4 | ID2 |
+| 5 | ID1 |
+| 6 | ID0 |
 | 7 | Señal 1 |
 | 8 | Señal 2 (solo la usa el HC-SR04; los demás sensores la dejan sin conectar) |
 
@@ -266,28 +268,30 @@ Hoy en `main.cpp` ya están programados 4 sensores: **pH (PH-4502C)**, **humedad
 
 ### Códigos y conexión de cada uno de los 4 sensores
 
-**pH PH-4502C — código 2 (ID0=0, ID1=1, ID2=0, ID3=0)**
+Recordatorio de pines físicos del RJ45 del módulo: **pin 3 = ID3, pin 4 = ID2, pin 5 = ID1, pin 6 = ID0**.
+
+**pH PH-4502C — código 2 (binario 0010: ID3=0, ID2=0, ID1=1, ID0=0)**
 
 - Conexión del sensor (sin cambios respecto a `sensores.md`): VCC → 5V, GND → GND, Po → pin de señal del conector.
-- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en la línea ID1. Las líneas ID0, ID2, ID3 sin conectar.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en el **pin 5 (ID1)**. Pines 3, 4, 6 sin conectar.
 - Señal 2 del conector: no se usa (el pH solo necesita una línea de señal).
 
-**Humedad de suelo OKY3442 — código 4 (ID0=0, ID1=0, ID2=1, ID3=0)**
+**Humedad de suelo OKY3442 — código 4 (binario 0100: ID3=0, ID2=1, ID1=0, ID0=0)**
 
 - Conexión del sensor: VCC → 5V, GND → GND, A0 (salida analógica) → pin de señal del conector.
-- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en la línea ID2. Las demás sin conectar.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en el **pin 4 (ID2)**. Pines 3, 5, 6 sin conectar.
 - Señal 2: no se usa.
 
-**Temperatura DS18B20 — código 8 (ID0=0, ID1=0, ID2=0, ID3=1)**
+**Temperatura DS18B20 — código 8 (binario 1000: ID3=1, ID2=0, ID1=0, ID0=0)**
 
 - Conexión del sensor: VCC → 5V, GND → GND, DQ → pin de señal del conector, con la resistencia de pull-up de 4.7 kΩ entre DQ y 5V (esta resistencia va aparte, es del protocolo 1-Wire, no tiene que ver con la identificación).
-- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en la línea ID3. Las demás sin conectar.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en el **pin 3 (ID3)**. Pines 4, 5, 6 sin conectar.
 - Señal 2: no se usa.
 
-**Ultrasónico HC-SR04 — código 9 (ID0=1, ID1=0, ID2=0, ID3=1)**
+**Ultrasónico HC-SR04 — código 9 (binario 1001: ID3=1, ID2=0, ID1=0, ID0=1)**
 
 - Conexión del sensor: Vcc → 5V, GND → GND, Trig → pin de **Señal 1** del conector, Echo → pin de **Señal 2** del conector. Este es el único de los 4 que sí usa las dos líneas de señal.
-- En el RJ45 del módulo: resistencia de 1 kΩ a GND en las líneas ID0 e ID3. Las líneas ID1 e ID2 sin conectar.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND en los **pines 3 (ID3) y 6 (ID0)**. Pines 4 y 5 sin conectar.
 
 ### Cómo probar que la identificación funciona con estos 4
 
