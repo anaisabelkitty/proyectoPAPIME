@@ -13,7 +13,7 @@ Este documento no repite lo que ya está en [`proyecto.md`](proyecto.md) (arquit
 El núcleo central tiene los siguientes componentes fijos:
 
 - **Arduino Mega 2560:** lee todos los sensores conectados y controla el LCD.
-- **ESP32 NodeMCU:** recibe los datos del Mega por UART y los transmite por WiFi/BLE.
+- **ESP32-C6 (Waveshare ESP32-C6-DEV-KIT-N8, módulo ESP32-C6-WROOM-1-N8):** recibe los datos del Mega por UART y los transmite por WiFi/BLE.
 - **4 conectores RJ45 hembra:** uno por cada sensor que se puede conectar al mismo tiempo. Van montados en el núcleo central.
 
 Cada módulo sensor lleva también su propio **conector RJ45 hembra**. La conexión entre el núcleo central y cada sensor se hace con un cable de red categoría 5 (Cat5), ponchado con un conector RJ45 macho en cada extremo, en estándar **T568B**, cable directo (mismo orden de pines en ambas puntas, no cruzado).

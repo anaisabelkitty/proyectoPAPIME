@@ -26,9 +26,13 @@ El kit funciona tanto conectado a la corriente eléctrica como con batería para
 - Opera a 5 V.
 - 16 entradas analógicas (A0–A15) y varios pines digitales.
 
-### ESP32 NodeMCU
+### ESP32-C6 (Waveshare ESP32-C6-DEV-KIT-N8)
+- Módulo ESP32-C6-WROOM-1-N8: RISC-V de 32 bits, un solo núcleo, hasta 160 MHz, 8 MB de flash integrado.
+- WiFi 6, Bluetooth 5 (BLE) e IEEE 802.15.4 (Zigbee 3.0 y Thread, sin usar por ahora).
+- Dos chips USB integrados (CH343 y CH334): permiten desarrollo por USB y UART al mismo tiempo desde un solo puerto USB-C. Por esto, al resetear la tarjeta puede aparecer con un número de puerto COM distinto (uno es el USB nativo, otro es el CH343).
+- Compatible con el pinout de la ESP32-C6-DevKitC-1-N8.
 - Recibe los datos del Mega por UART.
-- Levanta un servidor web HTTP en la red WiFi local.
+- Levanta un servidor web HTTP + WebSocket en la red WiFi local.
 - Maneja la conectividad WiFi y Bluetooth (BLE).
 - No lee sensores directamente.
 - Opera a 3.3 V.
@@ -134,8 +138,8 @@ Comunicación por UART serial a 115200 baudios. El Mega envía los datos en JSON
 El Mega opera a 5 V y el ESP32 solo tolera 3.3 V en sus pines de entrada. Por eso la línea TX del Mega necesita adaptación de niveles antes de llegar al pin RX de la ESP32. La línea del ESP32 hacia el Mega no necesita adaptación (3.3 V es suficiente para que el Mega la detecte como HIGH).
 
 ```
-Mega TX1 (pin 18) → [adaptación 5V→3.3V] → ESP32 RX
-Mega RX1 (pin 19) ───────────────────────→ ESP32 TX
+Mega TX1 (pin 18) → [adaptación 5V→3.3V] → ESP32-C6 RX (GPIO17 / U0RXD)
+Mega RX1 (pin 19) ───────────────────────→ ESP32-C6 TX (GPIO16 / U0TXD)
 ```
 
 Circuito de adaptación: divisor de voltaje con resistencias de 1 kΩ y 2 kΩ, o módulo level shifter bidireccional 5V/3.3V.
@@ -211,7 +215,7 @@ Sensores (conectados vía cable UTP + RJ45)
 Arduino Mega 2560
 (lee sensores, detecta cuáles están conectados, muestra en LCD, empaqueta JSON)
       ↓  UART 115200 baud
-ESP32 NodeMCU
+ESP32-C6 (Waveshare ESP32-C6-DEV-KIT-N8)
 (recibe JSON, lo reenvía por WebSocket, gestiona BLE y WiFi)
       ↓  WebSocket / WiFi local
       ├──→ App Android — producto final
