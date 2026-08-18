@@ -136,20 +136,33 @@ El código resultante (0 a 15) se compara contra una tabla en el firmware para s
 
 ### Tabla de códigos (provisional, sujeta a la lista final de sensores)
 
-| Sensor | ID0 | ID1 | ID2 | ID3 | Código |
-|---|---|---|---|---|---|
-| Voltaje AR2657 | 0 | 0 | 0 | 0 | 0 |
-| Corriente ACS712 | 1 | 0 | 0 | 0 | 1 |
-| pH PH-4502C | 0 | 1 | 0 | 0 | 2 |
-| Fototransistor PT331C | 1 | 1 | 0 | 0 | 3 |
-| Humedad OKY3442 | 0 | 0 | 1 | 0 | 4 |
-| CO2 MG811 | 1 | 0 | 1 | 0 | 5 |
-| Pulso OKY3471-5 | 0 | 1 | 1 | 0 | 6 |
-| Hall SM351LT | 1 | 1 | 1 | 0 | 7 |
-| Temperatura DS18B20 | 0 | 0 | 0 | 1 | 8 |
-| Ultrasónico HC-SR04 | 1 | 0 | 0 | 1 | 9 |
+El sensor de Pulso Cardíaco OKY3471-5 se eliminó del proyecto. El sensor Hall SM351LT (digital) se reemplazó por el SS49E (efecto Hall lineal, salida analógica); conserva el mismo código porque solo cambió el modelo, no la posición en la tabla. El código 6, que quedó libre, se reasignó al sensor de Presión.
 
-Faltan por asignar los sensores restantes hasta completar la lista final (ver pendientes: aún no está confirmado si el proyecto cierra en 12 o en 16 sensores).
+Las columnas van en el mismo orden que los pines en el RJ45 (izquierda a derecha: ID3, ID2, ID1, ID0), así el binario se lee directo contra el conector físico sin tener que invertir nada mentalmente.
+
+Ordenada por tipo (analógicos primero, digitales al final). pH (2) y Humedad (4) no cambiaron. Temperatura pasó de 8 a 9 y Ultrasónico de 9 a 10 — como ambos ya están armados físicamente, hay que mover una resistencia de identificación en cada módulo (detalle en [`prueba_temperatura_conector1.md`](prueba_temperatura_conector1.md) y [`prueba_ultrasonico_conector3.md`](prueba_ultrasonico_conector3.md)).
+
+| Sensor | Tipo | ID3 | ID2 | ID1 | ID0 | Código |
+|---|---|---|---|---|---|---|
+| Voltaje AR2657 | Analógico | 0 | 0 | 0 | 0 | 0 |
+| Corriente ACS712 | Analógico | 0 | 0 | 0 | 1 | 1 |
+| pH PH-4502C | Analógico | 0 | 0 | 1 | 0 | 2 |
+| Fototransistor PT331C | Analógico | 0 | 0 | 1 | 1 | 3 |
+| Humedad OKY3442 | Analógico | 0 | 1 | 0 | 0 | 4 |
+| CO2 MG811 | Analógico | 0 | 1 | 0 | 1 | 5 |
+| Presión MPX5700AP | Analógico | 0 | 1 | 1 | 0 | 6 |
+| Hall SS49E | Analógico | 0 | 1 | 1 | 1 | 7 |
+| Fuerza FSR 400/406 | Analógico | 1 | 0 | 0 | 0 | 8 |
+| Temperatura DS18B20 | Digital (1-Wire) | 1 | 0 | 0 | 1 | 9 |
+| Ultrasónico HC-SR04 | Digital (pulso Trig/Echo) | 1 | 0 | 1 | 0 | 10 |
+
+Van 11 de los 16 sensores del proyecto; faltan 5 por definir (ver pendientes).
+
+**Antes de armar físicamente estos 3 sensores hace falta resolver:**
+
+- **Hall SS49E:** confirmar el pinout (VCC/GND/OUT) directamente en el módulo físico — la ficha del producto no cargó al consultarla, así que no se puede asumir el orden de pines sin verificarlo con multímetro, igual que se hizo con los potenciómetros del PH-4502C.
+- **Presión MPX5700AP:** es un transductor NXP sin acondicionar (no una tarjeta breakout). Su salida es diferencial, de pocos mV, y necesita un circuito amplificador externo (por ejemplo un amplificador de instrumentación) antes de poder conectarse al pin de Señal del conector RJ45. La conexión no es un simple VCC/GND/Señal como los demás sensores.
+- **Fuerza FSR 400/406:** es una resistencia variable de 2 terminales (sin polaridad). Para leerla con el ADC hace falta armar un divisor de voltaje con una resistencia fija en serie; el valor de esa resistencia es una decisión de diseño (no un dato de fábrica) y todavía no está elegido.
 
 ### Pines del Mega dedicados a esto
 
@@ -282,16 +295,16 @@ Recordatorio de pines físicos del RJ45 del módulo: **pin 3 = ID3, pin 4 = ID2,
 - En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en el **pin 4 (ID2)**. Pines 3, 5, 6 sin conectar.
 - Señal 2: no se usa.
 
-**Temperatura DS18B20 — código 8 (binario 1000: ID3=1, ID2=0, ID1=0, ID0=0)**
+**Temperatura DS18B20 — código 9 (binario 1001: ID3=1, ID2=0, ID1=0, ID0=1)**
 
 - Conexión del sensor: VCC → 5V, GND → GND, DQ → pin de señal del conector, con la resistencia de pull-up de 4.7 kΩ entre DQ y 5V (esta resistencia va aparte, es del protocolo 1-Wire, no tiene que ver con la identificación).
-- En el RJ45 del módulo: resistencia de 1 kΩ a GND solo en el **pin 3 (ID3)**. Pines 4, 5, 6 sin conectar.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND en los **pines 3 (ID3) y 6 (ID0)**. Pines 4 y 5 sin conectar.
 - Señal 2: no se usa.
 
-**Ultrasónico HC-SR04 — código 9 (binario 1001: ID3=1, ID2=0, ID1=0, ID0=1)**
+**Ultrasónico HC-SR04 — código 10 (binario 1010: ID3=1, ID2=0, ID1=1, ID0=0)**
 
 - Conexión del sensor: Vcc → 5V, GND → GND, Trig → pin de **Señal 1** del conector, Echo → pin de **Señal 2** del conector. Este es el único de los 4 que sí usa las dos líneas de señal.
-- En el RJ45 del módulo: resistencia de 1 kΩ a GND en los **pines 3 (ID3) y 6 (ID0)**. Pines 4 y 5 sin conectar.
+- En el RJ45 del módulo: resistencia de 1 kΩ a GND en los **pines 3 (ID3) y 5 (ID1)**. Pines 4 y 6 sin conectar.
 
 ### Cómo probar que la identificación funciona con estos 4
 
@@ -299,7 +312,7 @@ Recordatorio de pines físicos del RJ45 del módulo: **pin 3 = ID3, pin 4 = ID2,
 2. Subir el `main.cpp` actual al Mega (ya trae la opción 9 lista, no hace falta ningún sketch aparte).
 3. Conectar el módulo de pH al conector 1, entrar al menú y escribir `9`. El monitor serial debe mostrar algo como: `Conector 1 (codigo 2): pH = 7.02`.
 4. Sin mover ninguna resistencia, desconectar el módulo de pH del conector 1 y conectarlo al conector 3 (o cualquier otro). Al volver a escanear (opción 9), debe seguir mostrando el código `2` y el valor de pH, ahora bajo "Conector 3". Esto confirma que la identificación no depende de en cuál de los 4 conectores esté el sensor.
-5. Repetir con los otros 3 módulos (humedad = código 4, temperatura = código 8, ultrasónico = código 9), probando cada uno en al menos dos conectores distintos.
+5. Repetir con los otros 3 módulos (humedad = código 4, temperatura = código 9, ultrasónico = código 10), probando cada uno en al menos dos conectores distintos.
 6. Para probar los 4 al mismo tiempo: conectar los 4 módulos, uno por conector, y correr la opción 9. Debe imprimir las 4 filas seguidas, cada una con su sensor y su valor correcto.
 7. Si algún conector no coincide con lo esperado, revisar primero ese conector específico: resistencias de ID mal conectadas en el módulo, cable Cat5 mal ponchado, o el cableado de ese conector en el núcleo.
 
@@ -333,10 +346,10 @@ Todo lo necesario para conectar pH, humedad, temperatura y ultrasónico al siste
 |---|---|---|---|
 | pH PH-4502C | 2 | ID1 | 1 |
 | Humedad OKY3442 | 4 | ID2 | 1 |
-| Temperatura DS18B20 | 8 | ID3 | 1 |
-| Ultrasónico HC-SR04 | 9 | ID0, ID3 | 2 |
+| Temperatura DS18B20 | 9 | ID3, ID0 | 2 |
+| Ultrasónico HC-SR04 | 10 | ID3, ID1 | 2 |
 
-**Total: 5 resistencias de 1 kΩ** (o cualquier valor disponible entre 1 kΩ y 10 kΩ, no es crítico — ver la explicación de por qué en la sección de identificación).
+**Total: 6 resistencias de 1 kΩ** (o cualquier valor disponible entre 1 kΩ y 10 kΩ, no es crítico — ver la explicación de por qué en la sección de identificación).
 
 ### Resistencia aparte, no relacionada con el código de identificación
 
@@ -376,7 +389,7 @@ Cada sensor se documenta en una hoja de esquemático separada dentro del mismo p
 1. ~~Modificar el código para que el Mega lea el código de 4 bits y detecte automáticamente el sensor conectado.~~ Hecho: opción 9 del menú, cubre pH, humedad, temperatura y ultrasónico.
 2. Armar físicamente los 4 módulos (pH, humedad, temperatura, ultrasónico) con su RJ45 y sus resistencias de código, siguiendo la lista de materiales y la guía de esta misma sección.
 3. Probar los 4 conectados al mismo tiempo con la opción 9, y confirmar que cada uno se detecta igual sin importar en qué conector esté.
-4. Confirmar la lista final de sensores (12 o 16) y completar la tabla de códigos de identificación con los que falten.
+4. Elegir los 5 sensores restantes para llegar a los 16 confirmados y completar la tabla de códigos de identificación.
 5. Capturar en KiCad los circuitos ya probados físicamente, cada uno en su propia hoja.
 6. Armar en KiCad la hoja principal (Mega, ESP32, LCD, alimentación) y resolver ahí la alimentación dual (batería + corriente eléctrica).
 7. Continuar con el resto de los sensores, uno por uno, repitiendo el mismo procedimiento.
@@ -387,8 +400,11 @@ Cada sensor se documenta en una hoja de esquemático separada dentro del mismo p
 
 | Pendiente | Depende de |
 |---|---|
-| Confirmar si el proyecto final tiene 12 o 16 sensores, y cuáles | Definición del equipo del proyecto |
-| Completar la tabla de códigos de identificación con todos los sensores | Depende del punto anterior |
+| Elegir los 5 sensores restantes para llegar a los 16 confirmados | Definición del equipo del proyecto |
+| Completar la tabla de códigos de identificación con los 5 que falten | Depende del punto anterior |
+| Confirmar el pinout del Hall SS49E en el módulo físico | Verificar con multímetro, la ficha del producto no cargó |
+| Diseñar el circuito amplificador para el MPX5700AP (transductor sin acondicionar) | Elegir amplificador de instrumentación u otra solución |
+| Elegir el valor de la resistencia fija para el divisor de voltaje del FSR 400/406 | Definición del equipo del proyecto |
 | Confirmar la disposición exacta de los 8 pines en el conector físico RJ45 (numeración real del conector, no solo del cable) | Se confirma al armar el primer módulo |
 | Alimentación dual (batería + corriente eléctrica) | Se resuelve al armar la hoja principal en KiCad |
 | Resistencia de pull-up de 4.7 kΩ del DS18B20 dentro del módulo, no en el núcleo | Se confirma al modularizar el sensor de temperatura |

@@ -34,6 +34,38 @@ La comunicación va a 115200 baudios. El Mega manda el JSON de sensores cada 500
 
 ---
 
+## Tabla de códigos de identificación (todos los sensores del proyecto)
+
+Fuente: [`diseno_electronico.md`](diseno_electronico.md#tabla-de-códigos-provisional-sujeta-a-la-lista-final-de-sensores)
+
+Van 11 de los 16 sensores confirmados; faltan 5 por definir. El Pulso Cardíaco OKY3471-5 se eliminó del proyecto y el Hall SM351LT (digital) se reemplazó por el SS49E (analógico), conservando el código 7.
+
+Las columnas van en el mismo orden que los pines en el RJ45 (izquierda a derecha: ID3, ID2, ID1, ID0). Ordenada por tipo (analógicos primero, digitales al final). pH (2) y Humedad (4) no cambiaron; Temperatura pasó de 8 a 9 y Ultrasónico de 9 a 10 (ambos ya armados físicamente, hubo que mover una resistencia de identificación en cada módulo — ver [`prueba_temperatura_conector1.md`](prueba_temperatura_conector1.md) y [`prueba_ultrasonico_conector3.md`](prueba_ultrasonico_conector3.md)).
+
+| Sensor | Tipo | ID3 | ID2 | ID1 | ID0 | Código |
+|---|---|---|---|---|---|---|
+| Voltaje AR2657 | Analógico | 0 | 0 | 0 | 0 | 0 |
+| Corriente ACS712 | Analógico | 0 | 0 | 0 | 1 | 1 |
+| pH PH-4502C | Analógico | 0 | 0 | 1 | 0 | 2 |
+| Fototransistor PT331C | Analógico | 0 | 0 | 1 | 1 | 3 |
+| Humedad OKY3442 | Analógico | 0 | 1 | 0 | 0 | 4 |
+| CO2 MG811 | Analógico | 0 | 1 | 0 | 1 | 5 |
+| Presión MPX5700AP | Analógico | 0 | 1 | 1 | 0 | 6 |
+| Hall SS49E | Analógico | 0 | 1 | 1 | 1 | 7 |
+| Fuerza FSR 400/406 | Analógico | 1 | 0 | 0 | 0 | 8 |
+| Temperatura DS18B20 | Digital (1-Wire) | 1 | 0 | 0 | 1 | 9 |
+| Ultrasónico HC-SR04 | Digital (pulso Trig/Echo) | 1 | 0 | 1 | 0 | 10 |
+
+Tres de estos sensores todavía no se pueden cablear porque falta resolver algo (detalle en [`diseno_electronico.md`](diseno_electronico.md#tabla-de-códigos-provisional-sujeta-a-la-lista-final-de-sensores)):
+
+| Sensor | Qué falta |
+|---|---|
+| Hall SS49E | Confirmar el pinout (VCC/GND/OUT) en el módulo físico |
+| Presión MPX5700AP | Diseñar el circuito amplificador (es un transductor sin acondicionar, no una tarjeta breakout) |
+| Fuerza FSR 400/406 | Elegir el valor de la resistencia fija del divisor de voltaje |
+
+---
+
 ## Sensores por conector RJ45 (núcleo → módulo)
 
 Los 4 conectores siguen el mismo patrón de 8 pines. La convención es fija: de izquierda a derecha, el pin 3 es ID3, el pin 4 es ID2, el pin 5 es ID1 y el pin 6 es ID0. Los pines 7 y 8 son Señal 1 y Señal 2.
@@ -66,9 +98,9 @@ Fuente: [`diseno_electronico.md`](diseno_electronico.md#pines-del-mega-dedicados
 
 | Conector | Sensor | Código | Bit(s) con resistencia 1kΩ a GND | Guía completa |
 |---|---|---|---|---|
-| 1 | Temperatura DS18B20 | 8 | ID3 | [`prueba_temperatura_conector1.md`](prueba_temperatura_conector1.md) |
+| 1 | Temperatura DS18B20 | 9 | ID3, ID0 | [`prueba_temperatura_conector1.md`](prueba_temperatura_conector1.md) |
 | 2 | pH PH-4502C | 2 | ID1 | [`prueba_ph_conector2.md`](prueba_ph_conector2.md) |
-| 3 | Ultrasónico HC-SR04 | 9 | ID3, ID0 | [`prueba_ultrasonico_conector3.md`](prueba_ultrasonico_conector3.md) |
+| 3 | Ultrasónico HC-SR04 | 10 | ID3, ID1 | [`prueba_ultrasonico_conector3.md`](prueba_ultrasonico_conector3.md) |
 | 4 | Humedad OKY3442 | 4 | ID2 | [`prueba_humedad_conector4.md`](prueba_humedad_conector4.md) |
 
 El DS18B20 usa Señal 1 como línea de datos (DQ), y por eso necesita un pull-up de 4.7kΩ a VCC, ya que así lo pide el protocolo 1-Wire. El PH-4502C y el OKY3442 usan Señal 1 como su salida analógica, Po y A0 respectivamente. El HC-SR04 es distinto a los otros tres porque usa las dos señales: Señal 1 es Trig y Señal 2 es Echo.
