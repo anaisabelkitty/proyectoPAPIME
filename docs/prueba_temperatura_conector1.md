@@ -4,7 +4,7 @@ Guía puntual para conectar el DS18B20 al conector 1. Referencia completa del si
 
 **Convención de pines del RJ45 (fija):** de izquierda a derecha, pin 3 = ID3, pin 4 = ID2, pin 5 = ID1, pin 6 = ID0. Así el binario se lee directo en el conector, en el mismo orden en que se escribe.
 
-Código de identificación del DS18B20: **8** (binario 1000: ID3=1, ID2=0, ID1=0, ID0=0).
+Código de identificación del DS18B20: **9** (binario 1001: ID3=1, ID2=0, ID1=0, ID0=1).
 
 ---
 
@@ -27,7 +27,7 @@ Sin resistencias de este lado. Los 4 pines de ID (22-25) se configuran como `INP
 
 ## Lado del módulo (DS18B20 → RJ45 del módulo)
 
-Como el código es 8 (ID3=1, ID2=0, ID1=0, ID0=0), solo el bit ID3 va en 1 (eléctricamente LOW = resistencia a GND). Eso significa una sola resistencia de identificación:
+Como el código es 9 (ID3=1, ID2=0, ID1=0, ID0=1), los bits ID3 e ID0 van en 1 (eléctricamente LOW = resistencia a GND). Eso significa dos resistencias de identificación:
 
 | Pin del RJ45 | Función | Conexión en el módulo |
 |---|---|---|
@@ -36,7 +36,7 @@ Como el código es 8 (ID3=1, ID2=0, ID1=0, ID0=0), solo el bit ID3 va en 1 (elé
 | 3 | ID3 | Resistencia de 1 kΩ hacia GND |
 | 4 | ID2 | Sin conectar |
 | 5 | ID1 | Sin conectar |
-| 6 | ID0 | Sin conectar |
+| 6 | ID0 | Resistencia de 1 kΩ hacia GND |
 | 7 | Señal 1 | Cable de datos (DQ) del DS18B20 |
 | 8 | Señal 2 | Sin conectar |
 
@@ -46,8 +46,9 @@ En la protoboard del módulo:
 - Fila VCC: cable rojo del DS18B20 + pin 1 del RJ45 + una pata de la resistencia de 4.7 kΩ.
 - Fila DQ (Señal 1): cable amarillo/blanco del DS18B20 + pin 7 del RJ45 + la otra pata de la resistencia de 4.7 kΩ.
 - Fila GND: cable negro del DS18B20 + pin 2 del RJ45.
-- Fila ID3: pin 3 del RJ45 + una pata de la resistencia de 1 kΩ, cuya otra pata va a la fila GND.
-- Pines 4, 5, 6 y 8 del RJ45: sin ningún cable.
+- Fila ID3: pin 3 del RJ45 + una pata de una resistencia de 1 kΩ, cuya otra pata va a la fila GND.
+- Fila ID0: pin 6 del RJ45 + una pata de otra resistencia de 1 kΩ, cuya otra pata va a la fila GND.
+- Pines 4, 5 y 8 del RJ45: sin ningún cable.
 
 ---
 
@@ -57,6 +58,6 @@ En la protoboard del módulo:
 2. Conectar el cable Cat5 entre el RJ45 del núcleo (conector 1) y el RJ45 del módulo.
 3. Subir el `main.cpp` actual al Mega (ya tiene la opción 9 del menú lista).
 4. Abrir el monitor serial, escribir `9`.
-5. Debe aparecer: `Conector 1 (codigo 8): Temperatura = XX.XX C`.
+5. Debe aparecer: `Conector 1 (codigo 9): Temperatura = XX.XX C`.
 
-Si el código no coincide con 8, revisar que la resistencia de 1 kΩ esté realmente conectada al pin 3 (ID3) y no a otro. Si el código sí es 8 pero la temperatura da error, revisar la resistencia de pull-up de 4.7 kΩ (esa es la que afecta la lectura del sensor, no la identificación).
+Si el código no coincide con 9, revisar que las resistencias de 1 kΩ estén realmente conectadas a los pines 3 (ID3) y 6 (ID0), y a ningún otro. Si el código sí es 9 pero la temperatura da error, revisar la resistencia de pull-up de 4.7 kΩ (esa es la que afecta la lectura del sensor, no la identificación).
