@@ -41,8 +41,8 @@ Conector conectores[NUM_CONECTORES] = {
 const int COD_VACIO       = 0; // también es el código de "Voltaje AR2657", sin implementar todavía
 const int COD_PH          = 2;
 const int COD_HUMEDAD     = 4;
-const int COD_TEMPERATURA = 8;
-const int COD_ULTRASONICO = 9;
+const int COD_TEMPERATURA = 9;
+const int COD_ULTRASONICO = 10;
 
 // ─── Constantes de calibración buffer ───────────────────────
 const float CAL_PH_4  =  4.01f;
