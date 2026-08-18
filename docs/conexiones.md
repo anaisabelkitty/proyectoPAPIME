@@ -81,7 +81,7 @@ Los 4 conectores siguen el mismo patrón de 8 pines. La convención es fija: de 
 | 5 | ID1 | Ver tabla de pines por conector |
 | 6 | ID0 | Ver tabla de pines por conector |
 | 7 | Señal 1 | Ver tabla de pines por conector |
-| 8 | Señal 2 | Solo lo usa el HC-SR04 (Echo); los demás sensores lo dejan sin conectar |
+| 8 | Señal 2 | Ver tabla de pines por conector |
 
 ### Pines del Mega por conector
 

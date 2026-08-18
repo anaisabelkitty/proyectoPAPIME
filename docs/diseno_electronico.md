@@ -267,7 +267,7 @@ Se descartó por completo el divisor de voltaje simple original (una resistencia
 | 5 | ID1 |
 | 6 | ID0 |
 | 7 | Señal 1 |
-| 8 | Señal 2 (solo la usa el HC-SR04; los demás sensores la dejan sin conectar) |
+| 8 | Señal 2 |
 
 Quedan los 8 pines ocupados, sin pines libres de reserva. Si se llegara a necesitar una tercera línea de señal para algún sensor futuro, hay que migrar el sistema de identificación a una de las dos alternativas de la sección anterior (1 pin en vez de 4) para liberar espacio.
 
