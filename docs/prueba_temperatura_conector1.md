@@ -15,13 +15,13 @@ Código de identificación del DS18B20: **9** (binario 1001: ID3=1, ID2=0, ID1=0
 | 1 | VCC | 5V |
 | 2 | GND | GND |
 | 3 | ID3 | 22 |
-| 4 | ID2 | 23 |
-| 5 | ID1 | 24 |
-| 6 | ID0 | 25 |
+| 4 | ID2 | 24 |
+| 5 | ID1 | 26 |
+| 6 | ID0 | 28 |
 | 7 | Señal 1 | A0 |
 | 8 | Señal 2 | A1 (sin usar en esta prueba) |
 
-Sin resistencias de este lado. Los 4 pines de ID (22-25) se configuran como `INPUT_PULLUP` en el código (ya está hecho en `main.cpp`).
+Sin resistencias de este lado. Los 4 pines de ID (22, 24, 26, 28) se configuran como `INPUT_PULLUP` en el código (ya está hecho en `main.cpp`).
 
 ---
 
