@@ -14,14 +14,14 @@ Código de identificación de la humedad: **4** (binario 0100: ID3=0, ID2=1, ID1
 |---|---|---|
 | 1 | VCC | 5V |
 | 2 | GND | GND |
-| 3 | ID3 | 34 |
-| 4 | ID2 | 35 |
-| 5 | ID1 | 36 |
-| 6 | ID0 | 37 |
+| 3 | ID3 | 46 |
+| 4 | ID2 | 48 |
+| 5 | ID1 | 50 |
+| 6 | ID0 | 52 |
 | 7 | Señal 1 | A6 |
 | 8 | Señal 2 | A7 (sin usar en esta prueba) |
 
-Sin resistencias de este lado. Los pines 34-37 ya están configurados como `INPUT_PULLUP` en `main.cpp`.
+Sin resistencias de este lado. Los pines 46, 48, 50, 52 ya están configurados como `INPUT_PULLUP` en `main.cpp`.
 
 ---
 
