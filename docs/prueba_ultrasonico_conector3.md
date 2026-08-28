@@ -16,14 +16,14 @@ Este es el único de los 4 sensores ya programados que usa **las dos líneas de 
 |---|---|---|
 | 1 | VCC | 5V |
 | 2 | GND | GND |
-| 3 | ID3 | 30 |
-| 4 | ID2 | 31 |
-| 5 | ID1 | 32 |
-| 6 | ID0 | 33 |
+| 3 | ID3 | 38 |
+| 4 | ID2 | 40 |
+| 5 | ID1 | 42 |
+| 6 | ID0 | 44 |
 | 7 | Señal 1 | A4 |
 | 8 | Señal 2 | A5 |
 
-Sin resistencias de este lado. Los pines 30-33 ya están configurados como `INPUT_PULLUP` en `main.cpp`.
+Sin resistencias de este lado. Los pines 38, 40, 42, 44 ya están configurados como `INPUT_PULLUP` en `main.cpp`.
 
 ---
 
