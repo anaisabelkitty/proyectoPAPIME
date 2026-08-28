@@ -14,14 +14,14 @@ Código de identificación del pH: **2** (binario 0010: ID3=0, ID2=0, ID1=1, ID0
 |---|---|---|
 | 1 | VCC | 5V |
 | 2 | GND | GND |
-| 3 | ID3 | 26 |
-| 4 | ID2 | 27 |
-| 5 | ID1 | 28 |
-| 6 | ID0 | 29 |
+| 3 | ID3 | 30 |
+| 4 | ID2 | 32 |
+| 5 | ID1 | 34 |
+| 6 | ID0 | 36 |
 | 7 | Señal 1 | A2 |
 | 8 | Señal 2 | A3 (sin usar en esta prueba) |
 
-Sin resistencias de este lado. Los pines 26-29 ya están configurados como `INPUT_PULLUP` en `main.cpp` (el `setup()` lo hace para los 4 conectores).
+Sin resistencias de este lado. Los pines 30, 32, 34, 36 ya están configurados como `INPUT_PULLUP` en `main.cpp` (el `setup()` lo hace para los 4 conectores).
 
 ---
 
