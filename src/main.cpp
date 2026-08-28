@@ -20,9 +20,10 @@
 
 // ─── Pines de los 4 conectores RJ45 (identificación + señal) ───
 // Ver docs/diseno_electronico.md, sección "Pines del Mega dedicados a esto".
-// Convención fija: en el RJ45, de izquierda a derecha, va ID3, ID2, ID1, ID0
-// (pin 3 = ID3 ... pin 6 = ID0), así el binario se lee directo en el conector
-// en el mismo orden en que se escribe. Ver docs/diseno_electronico.md.
+// Convención fija del RJ45: de izquierda a derecha, pin 3 = ID3, pin 4 = ID2,
+// pin 5 = ID1, pin 6 = ID0. Del lado del Mega usamos solo pines pares
+// (22, 24, 26 ... 52) para los 16 bits de ID, dejando libre toda la fila de
+// pines impares (23, 25, 27 ... 53) para lo que se necesite más adelante.
 struct Conector {
     int id0, id1, id2, id3; // pines de identificación (INPUT_PULLUP)
     int senal1;             // pin de señal 1 (Ax)
@@ -31,10 +32,10 @@ struct Conector {
 
 const int NUM_CONECTORES = 4;
 Conector conectores[NUM_CONECTORES] = {
-    {25, 24, 23, 22, A0, A1},  // Conector 1 (RJ45 pin6=id0, pin5=id1, pin4=id2, pin3=id3)
-    {29, 28, 27, 26, A2, A3},  // Conector 2
-    {33, 32, 31, 30, A4, A5},  // Conector 3
-    {37, 36, 35, 34, A6, A7},  // Conector 4
+    {28, 26, 24, 22, A0, A1},  // Conector 1
+    {36, 34, 32, 30, A2, A3},  // Conector 2
+    {44, 42, 40, 38, A4, A5},  // Conector 3
+    {52, 50, 48, 46, A6, A7},  // Conector 4
 };
 
 // Códigos de identificación (ver tabla en docs/diseno_electronico.md)
