@@ -170,16 +170,18 @@ Cada conector necesita 4 pines digitales solo para ID. Con 4 conectores son 16 p
 
 Asignación fija de pines por conector. Señal 1 y Señal 2 son las dos pines Ax (decisión final: aunque Señal 2 hoy solo la use el HC-SR04, se deja como Ax para no tener que recablear si algún sensor futuro la necesita como analógica).
 
-**Convención de orden de los pines de ID (fija, no cambiar):** en el RJ45, de izquierda a derecha, va **ID3, ID2, ID1, ID0** — así el binario se lee directo en el conector, en el mismo orden en que se escribe (bit de mayor valor primero), sin tener que invertir nada mentalmente:
+**Convención de orden de los pines de ID (fija, no cambiar):** en el RJ45, de izquierda a derecha, va **ID3, ID2, ID1, ID0** — así el binario se lee directo en el conector, en el mismo orden en que se escribe (bit de mayor valor primero), sin tener que invertir nada mentalmente.
 
-| Conector | ID3 (RJ45 pin 3) | ID2 (RJ45 pin 4) | ID1 (RJ45 pin 5) | ID0 (RJ45 pin 6) | Señal 1 (Ax) | Señal 2 (Ax) |
+Del lado del Mega, los 16 pines de ID usan **solo pines pares** (22, 24, 26 ... 52), en vez de ir consecutivos. Esto deja toda la fila de pines impares (23, 25, 27 ... 53) completamente libre para lo que se necesite más adelante, sin afectar en nada a los módulos sensores ya armados (las resistencias de identificación van del lado del módulo, no cambian):
+
+| Conector | ID3 | ID2 | ID1 | ID0 | Señal 1 (Ax) | Señal 2 (Ax) |
 |---|---|---|---|---|---|---|
-| Conector 1 | 22 | 23 | 24 | 25 | A0 | A1 |
-| Conector 2 | 26 | 27 | 28 | 29 | A2 | A3 |
-| Conector 3 | 30 | 31 | 32 | 33 | A4 | A5 |
-| Conector 4 | 34 | 35 | 36 | 37 | A6 | A7 |
+| Conector 1 | 22 | 24 | 26 | 28 | A0 | A1 |
+| Conector 2 | 30 | 32 | 34 | 36 | A2 | A3 |
+| Conector 3 | 38 | 40 | 42 | 44 | A4 | A5 |
+| Conector 4 | 46 | 48 | 50 | 52 | A6 | A7 |
 
-Con esto se usan 8 de los 16 pines Ax del Mega (quedan A8-A15 libres), y los pines de ID quedan consecutivos del 22 al 37 sin huecos.
+Con esto se usan 8 de los 16 pines Ax del Mega (quedan A8-A15 libres). De los pines digitales, quedan libres los 16 impares (23-53) más los que no se usaron por completo dentro del rango par (D50 y D52 son también las líneas SPI MISO y SCK, libres mientras el proyecto no use SPI para nada más).
 
 (Pin 7 sigue libre para el DS18B20 si se prueba suelto sin RJ45, y el pin 22 en la tabla anterior de `sensores.md` para el sensor Hall queda liberado, porque con este sistema el sensor Hall ya no tiene un pin fijo, se detecta por su código.)
 
@@ -190,9 +192,9 @@ Esto es lo que se hace hoy, con el conector 1 como ejemplo, para dejar la identi
 **1. Preparar el lado del núcleo.**
 En la protoboard del núcleo, tomar 4 jumpers y conectar el RJ45 hembra del conector 1 así:
 - Pin 3 del RJ45 (ID3) → pin digital 22 del Mega.
-- Pin 4 del RJ45 (ID2) → pin digital 23 del Mega.
-- Pin 5 del RJ45 (ID1) → pin digital 24 del Mega.
-- Pin 6 del RJ45 (ID0) → pin digital 25 del Mega.
+- Pin 4 del RJ45 (ID2) → pin digital 24 del Mega.
+- Pin 5 del RJ45 (ID1) → pin digital 26 del Mega.
+- Pin 6 del RJ45 (ID0) → pin digital 28 del Mega.
 
 No poner ninguna resistencia en este lado. El pull-up lo activa el código, no el cableado.
 
@@ -202,9 +204,9 @@ No poner ninguna resistencia en este lado. El pull-up lo activa el código, no e
 #include <Arduino.h>
 
 const int PIN_ID3 = 22;
-const int PIN_ID2 = 23;
-const int PIN_ID1 = 24;
-const int PIN_ID0 = 25;
+const int PIN_ID2 = 24;
+const int PIN_ID1 = 26;
+const int PIN_ID0 = 28;
 
 void setup() {
     Serial.begin(9600);
