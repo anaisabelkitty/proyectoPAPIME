@@ -87,12 +87,14 @@ Los 4 conectores siguen el mismo patrón de 8 pines. La convención es fija: de 
 
 Fuente: [`diseno_electronico.md`](diseno_electronico.md#pines-del-mega-dedicados-a-esto)
 
+Los 16 pines de ID usan solo números pares (22 a 52), dejando libre toda la fila de pines impares para uso futuro.
+
 | Conector | ID3 | ID2 | ID1 | ID0 | Señal 1 | Señal 2 |
 |---|---|---|---|---|---|---|
-| 1 | 22 | 23 | 24 | 25 | A0 | A1 |
-| 2 | 26 | 27 | 28 | 29 | A2 | A3 |
-| 3 | 30 | 31 | 32 | 33 | A4 | A5 |
-| 4 | 34 | 35 | 36 | 37 | A6 | A7 |
+| 1 | 22 | 24 | 26 | 28 | A0 | A1 |
+| 2 | 30 | 32 | 34 | 36 | A2 | A3 |
+| 3 | 38 | 40 | 42 | 44 | A4 | A5 |
+| 4 | 46 | 48 | 50 | 52 | A6 | A7 |
 
 ### Sensor conectado hoy en cada conector
 
