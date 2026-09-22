@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sensei — Panel web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🌱 Sensei</h1>
+    <span id="estadoConexion" class="badge">Desconectado</span>
+  </header>
+
+  <main>
+    <!-- 1. Conectar por Bluetooth -->
+    <section id="pantallaConectar" class="pantalla">
+      <h2>Conectar con el kit</h2>
+      <p>Enciende el kit Sensei y presiona conectar. Chrome o Edge van a
+         mostrar la lista de dispositivos Bluetooth cercanos — elige el que
+         empiece con <strong>SENSEI-</strong>.</p>
+      <button id="btnConectar">🔵 Conectar por Bluetooth</button>
+      <p id="errorConectar" class="mensaje error" hidden></p>
+    </section>
+
+    <!-- 2. Configurar WiFi del kit -->
+    <section id="pantallaWifi" class="pantalla" hidden>
+      <h2>Configurar WiFi del kit</h2>
+      <p id="wifiMensaje" class="mensaje"></p>
+
+      <label for="inputSsid">Red (SSID)</label>
+      <input id="inputSsid" type="text" placeholder="Nombre de tu red WiFi" autocomplete="off">
+
+      <div class="fila-scan">
+        <button id="btnScan" type="button" class="secundario">🔄 Escanear redes</button>
+        <select id="selectRedes" hidden></select>
+      </div>
+
+      <label for="inputPass">Contraseña</label>
+      <input id="inputPass" type="password" placeholder="Contraseña" autocomplete="off">
+
+      <button id="btnEnviarCred">Conectar el kit al WiFi</button>
+      <p id="wifiEstado" class="mensaje estado" hidden></p>
+    </section>
+
+    <!-- 3. Advertencia de red antes de ver los datos -->
+    <section id="pantallaAdvertencia" class="pantalla" hidden>
+      <h2>Antes de continuar</h2>
+      <p>Para ver los datos, esta computadora (o celular) debe estar
+         conectada a la red WiFi:</p>
+      <p class="ssid-destacado" id="ssidActual">—</p>
+      <button id="btnContinuar">Continuar</button>
+      <p id="errorWs" class="mensaje error" hidden></p>
+    </section>
+
+    <!-- 4. Datos en vivo -->
+    <section id="pantallaDatos" class="pantalla" hidden>
+      <h2>Lecturas en tiempo real</h2>
+      <div id="grillaSensores" class="grilla"></div>
+      <details>
+        <summary>Ver JSON crudo (para depuración)</summary>
+        <pre id="jsonCrudo">—</pre>
+        <a id="linkData" href="#" target="_blank" rel="noopener">Abrir GET /data en una pestaña nueva</a>
+      </details>
+      <button id="btnDesconectar" class="secundario">Desconectar</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>Requiere Chrome o Edge (computadora o Android) — Web Bluetooth no
+       funciona en Safari ni Firefox. Esta página imita el flujo de la app
+       Android para poder probar el kit sin ella (ver
+       <code>docs/protocolo.md</code>).</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
