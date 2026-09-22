@@ -6,3 +6,4 @@
 
 # Kiro IDE — configuración interna del entorno de desarrollo
 .kiro
+__pycache__/
