@@ -6,3 +6,7 @@
 
 # Kiro IDE — configuración interna del entorno de desarrollo
 .kiro
+
+# Python — archivos compilados
+__pycache__/
+*.pyc
