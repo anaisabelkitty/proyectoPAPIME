@@ -30,6 +30,22 @@ float temp_leerCelsius() {
     return temperatura;
 }
 
+// Arranca la conversión sin esperar el resultado. El modo de espera de la
+// librería se apaga solo durante la petición, para no cambiar el comportamiento
+// bloqueante de temp_leerCelsius().
+void temp_pedirConversion() {
+    _sensores.setWaitForConversion(false);
+    _sensores.requestTemperatures();
+    _sensores.setWaitForConversion(true);
+}
+
+// Lee el resultado de la última conversión pedida con temp_pedirConversion().
+// Debe llamarse después de TEMP_CONVERSION_MS; antes de eso el sensor todavía
+// entrega la medición anterior.
+float temp_leerUltimaConversion() {
+    return _sensores.getTempCByIndex(0);
+}
+
 // Cambia el pin del bus 1-Wire sin reconstruir los objetos OneWire/DallasTemperature.
 void temp_configurarPin(int pin) {
     _onewire.begin(pin);

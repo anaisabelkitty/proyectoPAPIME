@@ -45,4 +45,13 @@ float  temp_leerCelsius();
 // por ejemplo al leerlo a través de uno de los 4 conectores RJ45.
 void   temp_configurarPin(int pin);
 
+// Lectura sin bloqueo: se pide la conversión y se recoge tiempo después,
+// mientras el programa sigue haciendo otras cosas.
+//   1. temp_pedirConversion()   → arranca la medición y regresa al instante.
+//   2. Esperar al menos TEMP_CONVERSION_MS (con millis(), sin delay).
+//   3. temp_leerUltimaConversion() → °C, o TEMP_ERROR si falló.
+const unsigned long TEMP_CONVERSION_MS = 800;  // 750 ms del sensor + margen
+void   temp_pedirConversion();
+float  temp_leerUltimaConversion();
+
 #endif
