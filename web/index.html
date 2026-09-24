@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sensei - Panel de pruebas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>SENSEI</h1>
+    <p class="sub">Panel de pruebas local. Hace lo mismo que la app Android: Bluetooth, WiFi y datos.</p>
+  </header>
+
+  <main>
+    <ol class="pasos" id="pasos">
+      <li id="marca-1" class="activo">1 Bluetooth</li>
+      <li id="marca-2">2 WiFi</li>
+      <li id="marca-3">3 Datos</li>
+    </ol>
+
+    <!-- Paso 1: Bluetooth -->
+    <section id="paso-1" class="tarjeta">
+      <h2>Paso 1: conecta el Bluetooth</h2>
+      <p>Busca el kit por su nombre <b>SENSEI-XXXX</b>. Solo funciona en Chrome o Edge.</p>
+      <button id="btn-buscar" class="primario">Buscar kit</button>
+      <p class="aparte">
+        ¿Ya conoces la IP? Salta el Bluetooth:
+        <input id="ip-manual" placeholder="172.20.10.6" size="14">
+        <button id="btn-ip-manual">Conectar por IP</button>
+      </p>
+      <p class="aparte"><button id="btn-simular">Simular datos (sin kit)</button></p>
+    </section>
+
+    <!-- Paso 2: WiFi -->
+    <section id="paso-2" class="tarjeta oculto">
+      <h2>Paso 2: configura el WiFi</h2>
+      <p>Kit: <b id="nombre-kit">-</b> · Estado: <b id="estado-kit">-</b></p>
+      <label>Red (SSID)
+        <input id="ssid" list="redes" autocomplete="off" placeholder="Nombre de la red">
+        <datalist id="redes"></datalist>
+      </label>
+      <label>Contraseña
+        <input id="clave" type="password" autocomplete="off">
+      </label>
+      <div class="fila">
+        <button id="btn-redes">Buscar redes</button>
+        <button id="btn-enviar" class="primario">Conectar</button>
+      </div>
+      <p id="msg-wifi" class="estado"></p>
+    </section>
+
+    <!-- Aviso antes de abrir el WebSocket (docs/protocolo.md §3) -->
+    <section id="paso-aviso" class="tarjeta oculto">
+      <h2>Antes de continuar</h2>
+      <p>Para ver los datos, esta computadora debe estar conectada a la red WiFi:
+        <b id="aviso-ssid">-</b></p>
+      <p>IP del kit: <b id="aviso-ip">-</b></p>
+      <p id="aviso-error" class="error oculto">No se pudo abrir la conexión. Revisa que estás en esa red.</p>
+      <button id="btn-continuar" class="primario">Continuar</button>
+    </section>
+
+    <!-- Paso 3: datos -->
+    <section id="paso-3" class="oculto">
+      <div class="barra">
+        <span id="estado-ws" class="pastilla">sin conexión</span>
+        <span id="info-ws"></span>
+        <button id="btn-salir">Salir</button>
+      </div>
+      <div class="rejilla" id="rejilla"></div>
+      <details>
+        <summary>JSON recibido</summary>
+        <pre id="json-crudo">(nada todavía)</pre>
+      </details>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Registro</h2>
+      <pre id="registro"></pre>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
