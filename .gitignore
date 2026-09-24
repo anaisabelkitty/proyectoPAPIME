@@ -8,6 +8,14 @@
 # Kiro IDE — configuración interna del entorno de desarrollo
 .kiro
 
+# KiCad — archivos temporales, respaldos y cachés
+*.lck
+*-backups/
+_autosave-*
+fp-info-cache
+*-cache.lib
+*.kicad_prl
+
 # Python — archivos compilados
 __pycache__/
 *.pyc
